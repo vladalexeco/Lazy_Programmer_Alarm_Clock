@@ -1,4 +1,4 @@
-package ru.vladalexeco.lazyprogrammer.ui.theme
+package ru.vladalexeco.lazyprogrammer.presentation.ui.theme
 
 import android.app.Activity
 import android.os.Build
