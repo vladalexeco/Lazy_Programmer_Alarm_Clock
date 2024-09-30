@@ -1,4 +1,4 @@
-package ru.vladalexeco.lazyprogrammer.core.util
+package ru.vladalexeco.lazyprogrammer.core.util.util_functions
 
 fun modifyMapToString(mapOfDays: Map<String, Boolean>): String {
     var result = ""

@@ -24,7 +24,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import ru.vladalexeco.lazyprogrammer.core.util.modifyMapToString
+import ru.vladalexeco.lazyprogrammer.core.util.util_functions.modifyMapToString
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.CardColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
