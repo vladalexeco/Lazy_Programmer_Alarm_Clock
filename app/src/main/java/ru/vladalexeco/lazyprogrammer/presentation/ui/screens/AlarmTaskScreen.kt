@@ -26,11 +26,14 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.vladalexeco.lazyprogrammer.R
+import ru.vladalexeco.lazyprogrammer.core.util.util_functions.buildColoredString
 import ru.vladalexeco.lazyprogrammer.domain.AlarmTask
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.CardColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
+import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.ButtonChoice
+import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.ButtonChoiceRow
 
 @Composable
 fun AlarmTaskScreen() {
@@ -49,54 +52,10 @@ fun AlarmTaskScreen() {
         complexity = 1
     )
 
-    val codeText = alarmTask.code
-
-    val annotatedCode = buildAnnotatedString {
-        val languageKeywords = listOf("val", "var", "fun", "class", "object", "interface", "if", "else", "for",
-            "while", "when", "do", "return", "break", "continue", "true", "false",
-            "null", "this", "super", "in", "is", "as", "try", "catch", "finally",
-            "throw", "import", "package", "out", "by", "constructor", "delegate",
-            "dynamic", "field", "file", "get", "set", "init", "lateinit", "data",
-            "sealed", "inner", "override", "abstract", "private", "protected",
-            "public", "open", "final", "vararg", "suspend", "inline", "noinline",
-            "crossinline", "reified", "typealias", "companion", "const", "operator",
-            "infix", "external", "tailrec", "enum", "annotation")
-
-        val keywordRegex = Regex("\\b(${languageKeywords.joinToString("|")})\\b")
-        val stringLiteralRegex = Regex("(\"[^\"]*\"|'[^']*')")
-        val numberRegex = Regex("-?\\d+(\\.\\d+)?")
-
-        var lastIndex = 0
-
-        val matches = mutableListOf<MatchResult>()
-        matches.addAll(stringLiteralRegex.findAll(codeText))
-        matches.addAll(keywordRegex.findAll(codeText))
-        matches.addAll(numberRegex.findAll(codeText))
-
-        val sortedMatches = matches.distinctBy { it.range }.sortedBy { it.range.first }
-
-        sortedMatches.forEach { matchResult ->
-            append(codeText.substring(lastIndex, matchResult.range.first))
-
-            val style = when  {
-                keywordRegex.matches(matchResult.value) -> SpanStyle(color = Color(0xFFFF9800)) // Оранжевый для ключевых слов
-                stringLiteralRegex.matches(matchResult.value) -> SpanStyle(color = Color(0xFF4CAF50)) // Зеленый для строковых литералов
-                numberRegex.matches(matchResult.value) -> SpanStyle(color = Color(0xFF2196F3))
-                else -> SpanStyle(color = Color(0xFFE6DEE3))
-            }
-
-            withStyle(style) {
-                append(matchResult.value)
-            }
-
-            lastIndex = matchResult.range.last + 1
-        }
-
-
-        if (lastIndex < codeText.length) {
-            append(codeText.substring(lastIndex))
-        }
-    }
+    val annotatedCode = buildColoredString(
+        language = "kotlin",
+        codeText = alarmTask.code
+    )
 
     Column(
         modifier = Modifier
@@ -159,6 +118,18 @@ fun AlarmTaskScreen() {
                 )
             )
         }
+
+        Text(
+            modifier = Modifier.padding(start = 16.dp, bottom = 16.dp),
+            text = "Варианты ответов:",
+            style = TextStyle(color = AccentColor, fontSize = 20.sp)
+        )
+
+        ButtonChoiceRow(
+            modifier = Modifier.padding(horizontal = 16.dp),
+            options = alarmTask.choiceOptions,
+            rightAnswerIndex = alarmTask.rightAnswer
+        )
     }
 }
 
