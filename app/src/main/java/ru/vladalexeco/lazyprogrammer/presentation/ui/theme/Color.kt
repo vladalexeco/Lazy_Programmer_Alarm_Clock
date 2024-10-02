@@ -18,3 +18,6 @@ val SubTextColor = Color(0xFF888485)
 val LightTextColor = Color(0xFFD4BBCC)
 val CardColor = Color(0xFF261E26)
 val AccentColor =  Color(0xFFE7B0DA)
+
+val RightAnswerColor = Color(0xFF8BC34A)
+val WrongAnswerColor = Color(0xFFF44336)
