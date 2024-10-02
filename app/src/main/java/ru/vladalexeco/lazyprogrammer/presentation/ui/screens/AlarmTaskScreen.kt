@@ -3,11 +3,16 @@ package ru.vladalexeco.lazyprogrammer.presentation.ui.screens
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.gestures.Orientation
+import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.Text
@@ -31,9 +36,13 @@ import ru.vladalexeco.lazyprogrammer.domain.AlarmTask
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.CardColor
+import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.LightTextColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
+import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.RightAnswerColor
+import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.WrongAnswerColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.ButtonChoice
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.ButtonChoiceRow
+import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.SimpleButton
 
 @Composable
 fun AlarmTaskScreen() {
@@ -51,6 +60,8 @@ fun AlarmTaskScreen() {
         language = "kotlin",
         complexity = 1
     )
+
+    val taskNumber = 1 // TODO значение приходит из viewmodel
 
     val annotatedCode = buildColoredString(
         language = "kotlin",
@@ -108,8 +119,15 @@ fun AlarmTaskScreen() {
                 )
         ) {
             BasicText(
-                modifier = Modifier.padding(vertical = 16.dp, horizontal = 16.dp),
+                modifier = Modifier
+                    .scrollable(
+                        orientation = Orientation.Vertical,
+                        enabled = true,
+                        state = rememberScrollState()
+                    )
+                    .padding(vertical = 16.dp, horizontal = 16.dp),
                 text = annotatedCode,
+                maxLines = 14,
                 style = TextStyle(
                     color = MainTextColor,
                     fontSize = 20.sp,
@@ -127,8 +145,34 @@ fun AlarmTaskScreen() {
 
         ButtonChoiceRow(
             modifier = Modifier.padding(horizontal = 16.dp),
-            options = alarmTask.choiceOptions,
-            rightAnswerIndex = alarmTask.rightAnswer
+            options = listOf("1", "2", "3", "4"),
+            rightAnswerIndex = 2,
+            onButtonClick = { isCorrectAnswer ->
+                // TODO Действия в случае правильного или неправильного ответа
+            }
+        )
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        SimpleButton(
+            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp),
+            text = "Пропустить",
+            backgroundColor = RightAnswerColor,
+            textColor = MainTextColor,
+            onClick = {}
+        )
+
+        SimpleButton(
+            modifier = Modifier.fillMaxWidth().padding(
+                start = 16.dp,
+                end = 16.dp,
+                top = 16.dp,
+                bottom = 16.dp
+            ),
+            text = "Завершить",
+            backgroundColor = WrongAnswerColor,
+            textColor = MainTextColor,
+            onClick = {}
         )
     }
 }
