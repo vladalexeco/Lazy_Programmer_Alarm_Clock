@@ -79,7 +79,7 @@ fun AlarmTaskScreen() {
                 .padding(top = 16.dp, start = 16.dp, end = 12.dp)
         ) {
             Text(
-                text = "Задание",
+                text = "Задание $taskNumber",
                 style = TextStyle(color = MainTextColor, fontSize = 24.sp)
             )
             Image(

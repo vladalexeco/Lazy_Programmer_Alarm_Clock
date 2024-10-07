@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.CreateTaskScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.LazyProgrammerTheme
 
 class MainActivity : ComponentActivity() {
@@ -20,8 +21,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             LazyProgrammerTheme {
                 Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
+                    CreateTaskScreen(
                         modifier = Modifier.padding(innerPadding)
                     )
                 }
