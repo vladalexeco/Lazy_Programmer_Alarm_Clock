@@ -26,16 +26,11 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 @Composable
 fun CoreTextField(
     modifier: Modifier = Modifier,
+    textValue: String,
     hint: String,
     index: Int = 0,
     onValueChange: (Int, String) -> Unit,
-): ClearableTextField {
-
-    var textValue by remember { mutableStateOf("") }
-
-    fun clear() {
-        textValue = ""
-    }
+) {
 
     OutlinedTextField(
         modifier = modifier
@@ -52,7 +47,6 @@ fun CoreTextField(
             )
         },
         onValueChange = { newTextValue ->
-            textValue = newTextValue
             onValueChange.invoke(index, newTextValue)
         },
         textStyle = TextStyle(
@@ -64,12 +58,6 @@ fun CoreTextField(
             keyboardType = KeyboardType.Number
         )
     )
-
-    return object : ClearableTextField {
-        override fun clear() {
-            textValue = ""
-        }
-    }
 }
 
 @Composable
@@ -79,13 +67,10 @@ fun CoreTextFieldPreview() {
     var textValue by remember { mutableStateOf("") }
 
     CoreTextField(
+        textValue = textValue,
         hint = "true",
         onValueChange = { _, newTextValue ->
             textValue = newTextValue
         }
     )
-}
-
-interface ClearableTextField {
-    fun clear()
 }

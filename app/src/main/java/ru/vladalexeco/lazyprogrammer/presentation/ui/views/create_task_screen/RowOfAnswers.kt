@@ -5,6 +5,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 
@@ -14,24 +18,24 @@ fun RowOfAnswers(
     numberOfAnswers: Int,
     onValueChange: (Int, String) -> Unit
 ) {
-    val listOfIndexes = (0 until numberOfAnswers).toList()
+
+    var answers by remember { mutableStateOf(List(numberOfAnswers) { "" }) }
 
     LaunchedEffect(numberOfAnswers) {
-        // Reset textValue state when numberOfAnswers changes
-        listOfIndexes.forEach { index ->
-            onValueChange.invoke(index, "")
-        }
+        answers = List(numberOfAnswers) { "" }
     }
 
     LazyRow(
         modifier = modifier,
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
-        items(listOfIndexes) { index ->
+        items(answers.size) { index ->
             CoreTextField(
+                textValue = answers[index],
                 hint = "",
                 index = index,
                 onValueChange = { pos, value ->
+                    answers = answers.toMutableList().also { it[pos] = value }
                     onValueChange.invoke(pos, value)
                 },
             )
