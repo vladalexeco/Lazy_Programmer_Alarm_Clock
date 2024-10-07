@@ -58,7 +58,7 @@ fun DropdownList(
     var selectedText by remember { mutableStateOf(currentValue) }
     var textFieldSize by remember { mutableStateOf(Size.Zero) }
 
-    LaunchedEffect(value, currentValue) {
+    LaunchedEffect(value) {
         if (value != null) {
             selectedText = value
         }

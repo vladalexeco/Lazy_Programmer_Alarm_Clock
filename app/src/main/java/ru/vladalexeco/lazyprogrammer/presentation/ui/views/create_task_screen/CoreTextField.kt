@@ -34,7 +34,7 @@ fun CoreTextField(
 
     OutlinedTextField(
         modifier = modifier
-            .width(68.dp)
+            .width(70.dp)
             .border(width = 1.dp, color = AccentColor, shape = RoundedCornerShape(4.dp)),
         value = textValue,
         placeholder = {
@@ -51,7 +51,7 @@ fun CoreTextField(
         },
         textStyle = TextStyle(
             color = AccentColor,
-            fontSize = 20.sp,
+            fontSize = 16.sp,
             textAlign = TextAlign.Center
         ),
         keyboardOptions = KeyboardOptions(

@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -31,6 +30,8 @@ import androidx.compose.ui.unit.sp
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
+import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.RightAnswerColor
+import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.SimpleButton
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.DropdownList
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.RowOfAnswers
 
@@ -38,13 +39,8 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.Ro
 fun CreateTaskScreen(
     modifier: Modifier = Modifier
 ) {
-
-    val context = LocalContext.current
-
-    // TODO подумать о том, где эти значения могут храниться
-    // TODO так как, вероятно, количество языков будет увеличиваться
     val languageList = listOf("kotlin", "java", "python")
-    val complexityValue = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+    val complexityValueList = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
     val numberOfAnswersList = listOf("2", "3", "4", "5")
 
     var numberOfAnswers by remember { mutableIntStateOf(4) }
@@ -105,7 +101,7 @@ fun CreateTaskScreen(
             
             DropdownList(
                 modifier = Modifier.align(Alignment.CenterEnd),
-                items = complexityValue,
+                items = complexityValueList,
                 hint = "1 - 10",
                 onItemSelect = {}
             )
@@ -217,6 +213,19 @@ fun CreateTaskScreen(
                 }
             )
         }
+
+        SimpleButton(
+            modifier = Modifier.fillMaxWidth().padding(
+                start = 16.dp,
+                end = 16.dp,
+                top = 32.dp,
+                bottom = 16.dp
+            ),
+            text = "Создать задание",
+            backgroundColor = RightAnswerColor,
+            textColor = MainTextColor,
+            onClick = {}
+        )
     }
 }
 
