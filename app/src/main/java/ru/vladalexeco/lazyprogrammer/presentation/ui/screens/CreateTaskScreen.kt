@@ -27,6 +27,8 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import ru.vladalexeco.lazyprogrammer.core.util.app_constants.complexityMax
+import ru.vladalexeco.lazyprogrammer.core.util.app_constants.supportedProgrammingLanguages
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
@@ -39,8 +41,8 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.Ro
 fun CreateTaskScreen(
     modifier: Modifier = Modifier
 ) {
-    val languageList = listOf("kotlin", "java", "python")
-    val complexityValueList = listOf("1", "2", "3", "4", "5", "6", "7", "8", "9", "10")
+    val languageList = supportedProgrammingLanguages
+    val complexityValueList = List(complexityMax) { (it + 1).toString() }
     val numberOfAnswersList = listOf("2", "3", "4", "5")
 
     var numberOfAnswers by remember { mutableIntStateOf(4) }
