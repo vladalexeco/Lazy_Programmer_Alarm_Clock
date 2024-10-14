@@ -30,7 +30,6 @@ fun AlarmListScreen() {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Red)
     ) {
         Column(
             modifier = Modifier
@@ -40,7 +39,7 @@ fun AlarmListScreen() {
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(top = 16.dp, start = 12.dp, end = 12.dp)
+                    .padding(top = 32.dp, start = 12.dp, end = 12.dp)
             ) {
                 Text(
                     text = "Будильник",
@@ -57,8 +56,12 @@ fun AlarmListScreen() {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(vertical = 16.dp, horizontal = 12.dp)
-                    .background(SubTextColor)
+                    .padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 16.dp,
+                        bottom = 84.dp
+                    )
             ) {
 
             }
@@ -67,7 +70,7 @@ fun AlarmListScreen() {
         AddAlarmButton(
             modifier = Modifier
                 .align(Alignment.BottomCenter)
-                .padding(bottom = 16.dp),
+                .padding(bottom = 84.dp),
             onClick = {}
         )
     }

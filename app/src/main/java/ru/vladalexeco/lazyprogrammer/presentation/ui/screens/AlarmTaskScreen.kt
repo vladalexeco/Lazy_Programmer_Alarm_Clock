@@ -76,7 +76,7 @@ fun AlarmTaskScreen() {
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(top = 16.dp, start = 16.dp, end = 12.dp)
+                .padding(top = 32.dp, start = 16.dp, end = 12.dp)
         ) {
             Text(
                 text = "Задание $taskNumber",

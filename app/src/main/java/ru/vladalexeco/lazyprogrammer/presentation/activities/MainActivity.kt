@@ -11,6 +11,8 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import ru.vladalexeco.lazyprogrammer.core.navigation.Alarms
+import ru.vladalexeco.lazyprogrammer.core.navigation.AppNavScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.CreateTaskScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.LazyProgrammerTheme
 
@@ -20,28 +22,10 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             LazyProgrammerTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    CreateTaskScreen(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+                AppNavScreen(
+                    startDestination = Alarms.route
+                )
             }
         }
-    }
-}
-
-@Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    LazyProgrammerTheme {
-        Greeting("Android")
     }
 }

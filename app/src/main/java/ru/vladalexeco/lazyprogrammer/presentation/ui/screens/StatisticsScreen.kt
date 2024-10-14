@@ -60,7 +60,7 @@ fun StatisticsScreen(
             .background(color = BackgroundColor)
     ) {
         Text(
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 32.dp),
             text = "Статистика",
             style = TextStyle(color = MainTextColor, fontSize = 24.sp)
         )
