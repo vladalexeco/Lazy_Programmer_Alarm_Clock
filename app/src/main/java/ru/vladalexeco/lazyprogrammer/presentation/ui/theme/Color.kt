@@ -11,6 +11,7 @@ val PurpleGrey40 = Color(0xFF625b71)
 val Pink40 = Color(0xFF7D5260)
 
 val BackgroundColor = Color(0xFF1D181C)
+val BottomBarColor = Color(0xFF131111)
 val DialogBoxColor = Color(0xFF312C30)
 val DialogBoxTextFieldColor = Color(0xFF3C353A)
 val MainTextColor = Color(0xFFE6DEE3)

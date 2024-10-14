@@ -5,6 +5,7 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -64,7 +65,7 @@ fun CreateTaskScreen(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 32.dp),
             text = "Новое задание",
             style = TextStyle(color = MainTextColor, fontSize = 24.sp)
         )
@@ -227,6 +228,10 @@ fun CreateTaskScreen(
             backgroundColor = RightAnswerColor,
             textColor = MainTextColor,
             onClick = {}
+        )
+
+        Spacer(
+            modifier = Modifier.padding(bottom = 84.dp)
         )
     }
 }

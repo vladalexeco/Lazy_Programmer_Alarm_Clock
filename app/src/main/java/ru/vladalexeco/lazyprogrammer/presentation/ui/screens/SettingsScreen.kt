@@ -50,7 +50,7 @@ fun SettingsScreen(
             .verticalScroll(rememberScrollState())
     ) {
         Text(
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+            modifier = Modifier.padding(start = 16.dp, top = 32.dp),
             text = "Настройки",
             style = TextStyle(color = MainTextColor, fontSize = 24.sp)
         )
