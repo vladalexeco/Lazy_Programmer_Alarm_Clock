@@ -6,6 +6,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.CircleShape
@@ -75,23 +76,23 @@ fun ArrowButtonPreview() {
 }
 
 
-
-
-
 @Composable
 fun AlarmBlock(
-
+    index: Int,
+    hourValue: String,
+    minuteValue: String,
+    isActivated: Boolean,
+    weekdays: List<Boolean>,
+    onClockClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onSwitchClick: (Boolean) -> Unit
 ) {
     var isExtended by remember {
         mutableStateOf(false)
     }
 
     var isClockDialActivated by remember {
-        mutableStateOf(false)
-    }
-
-    var clockDialValue by remember {
-        mutableStateOf("09:45")
+        mutableStateOf(isActivated)
     }
 
     var clockInformationValue by remember {
@@ -102,13 +103,13 @@ fun AlarmBlock(
         mutableStateOf("Выбрать мелодию")
     }
 
-    var isCheckedOne by remember { mutableStateOf(true) }
-    var isCheckedTwo by remember { mutableStateOf(true) }
-    var isCheckedThree by remember { mutableStateOf(true) }
-    var isCheckedFour by remember { mutableStateOf(true) }
-    var isCheckedFive by remember { mutableStateOf(true) }
-    var isCheckedSix by remember { mutableStateOf(true) }
-    var isCheckedSeven by remember { mutableStateOf(true) }
+    var isCheckedOne by remember { mutableStateOf(weekdays[0]) }
+    var isCheckedTwo by remember { mutableStateOf(weekdays[1]) }
+    var isCheckedThree by remember { mutableStateOf(weekdays[2]) }
+    var isCheckedFour by remember { mutableStateOf(weekdays[3]) }
+    var isCheckedFive by remember { mutableStateOf(weekdays[4]) }
+    var isCheckedSix by remember { mutableStateOf(weekdays[5]) }
+    var isCheckedSeven by remember { mutableStateOf(weekdays[6]) }
 
     Column(
         modifier = Modifier
@@ -127,8 +128,9 @@ fun AlarmBlock(
         ClockDial(
             modifier = Modifier.padding(start = 16.dp),
             isActivated = isClockDialActivated,
-            timeValue = clockDialValue,
-            onClockDialClick = {}
+            hourValue = hourValue,
+            minuteValue = minuteValue,
+            onClockDialClick = { onClockClick.invoke() }
         )
 
         Box(
@@ -146,7 +148,10 @@ fun AlarmBlock(
             Switch(
                 modifier = Modifier.align(Alignment.TopEnd),
                 checked = isClockDialActivated,
-                onCheckedChange = { isClockDialActivated = it },
+                onCheckedChange = { isActivated ->
+                    isClockDialActivated = isActivated
+                    onSwitchClick.invoke(isActivated)
+                },
                 colors = SwitchDefaults.colors(
 //                    checkedThumbColor = Color.Green,
                     uncheckedThumbColor = SubTextColor,
@@ -180,7 +185,7 @@ fun AlarmBlock(
             Text(
                 modifier = Modifier
                     .padding(start = 16.dp, top = 24.dp)
-                    .clickable {  },
+                    .clickable { },
                 text = alarmMelodyName,
                 style = TextStyle(color = MainTextColor)
             )
@@ -188,7 +193,7 @@ fun AlarmBlock(
             Text(
                 modifier = Modifier
                     .padding(start = 16.dp, top = 24.dp, bottom = 16.dp)
-                    .clickable {  },
+                    .clickable { onDeleteClick.invoke() },
                 text = "Удалить",
                 style = TextStyle(color = MainTextColor)
             )
@@ -201,17 +206,37 @@ fun AlarmBlock(
 fun ClockDial(
     modifier: Modifier = Modifier,
     isActivated: Boolean,
-    timeValue: String,
+    hourValue: String,
+    minuteValue: String,
     onClockDialClick: () -> Unit
 ) {
-    Text(
-        modifier = modifier.clickable { onClockDialClick.invoke() },
-        text = timeValue,
-        style = TextStyle(
-            color = if (isActivated) MainTextColor else SubTextColor,
-            fontSize = 48.sp
+    Row(
+        modifier = modifier.clickable { onClockDialClick.invoke() }
+    ) {
+        Text(
+            text = hourValue,
+            style = TextStyle(
+                color = if (isActivated) MainTextColor else SubTextColor,
+                fontSize = 48.sp
+            )
         )
-    )
+
+        Text(
+            text = ":",
+            style = TextStyle(
+                color = if (isActivated) MainTextColor else SubTextColor,
+                fontSize = 48.sp
+            )
+        )
+
+        Text(
+            text = minuteValue,
+            style = TextStyle(
+                color = if (isActivated) MainTextColor else SubTextColor,
+                fontSize = 48.sp
+            )
+        )
+    }
 }
 
 @Composable
@@ -246,13 +271,13 @@ fun ClockDialPreview() {
         mutableStateOf(true)
     }
 
-    val timeValue by remember {
-        mutableStateOf("09:45")
-    }
+    val hourValue by remember { mutableStateOf("09") }
+    val minuteValue by remember { mutableStateOf("45") }
 
     ClockDial(
         isActivated = isActivated,
-        timeValue = timeValue,
+        hourValue = hourValue,
+        minuteValue = minuteValue,
         onClockDialClick = {}
     )
 }
@@ -260,7 +285,16 @@ fun ClockDialPreview() {
 @Composable
 @Preview(showBackground = true)
 fun AlarmBlockPreview() {
-    AlarmBlock()
+    AlarmBlock(
+        index = 1,
+        hourValue = "09",
+        minuteValue = "45",
+        isActivated = true,
+        weekdays = listOf(true, true, true, true, true, true, true),
+        onClockClick = {},
+        onDeleteClick = {},
+        onSwitchClick = {}
+    )
 }
 
 

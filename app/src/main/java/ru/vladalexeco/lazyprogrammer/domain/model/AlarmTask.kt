@@ -1,4 +1,4 @@
-package ru.vladalexeco.lazyprogrammer.domain
+package ru.vladalexeco.lazyprogrammer.domain.model
 
 data class AlarmTask(
     val id: Int,
