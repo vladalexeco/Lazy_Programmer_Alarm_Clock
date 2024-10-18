@@ -11,11 +11,13 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import dagger.hilt.android.AndroidEntryPoint
 import ru.vladalexeco.lazyprogrammer.core.navigation.Alarms
 import ru.vladalexeco.lazyprogrammer.core.navigation.AppNavScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.CreateTaskScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.LazyProgrammerTheme
 
+@AndroidEntryPoint
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
