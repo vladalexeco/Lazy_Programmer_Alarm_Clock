@@ -103,7 +103,7 @@ fun WeekDaysRow(
     onClickFive: () -> Unit,
     onClickSix: () -> Unit,
     onClickSeven: () -> Unit,
-    onDaysArrayChange: (String) -> Unit
+    onDaysArrayChange: (Map<String, Boolean>) -> Unit
 ) {
     val letterMap = linkedMapOf(
         "Пн" to isCheckedOne,
@@ -125,7 +125,7 @@ fun WeekDaysRow(
             onClick = {
                 onClickOne.invoke()
                 letterMap["Пн"] = !letterMap["Пн"]!!
-                onDaysArrayChange.invoke(modifyMapToString(letterMap))
+                onDaysArrayChange.invoke(letterMap)
             }
         )
         RoundButtonWithLetter(
@@ -134,7 +134,7 @@ fun WeekDaysRow(
             onClick = {
                 onClickTwo.invoke()
                 letterMap["Вт"] = !letterMap["Вт"]!!
-                onDaysArrayChange.invoke(modifyMapToString(letterMap))
+                onDaysArrayChange.invoke(letterMap)
             }
         )
         RoundButtonWithLetter(
@@ -143,7 +143,7 @@ fun WeekDaysRow(
             onClick = {
                 onClickThree.invoke()
                 letterMap["Ср"] = !letterMap["Ср"]!!
-                onDaysArrayChange.invoke(modifyMapToString(letterMap))
+                onDaysArrayChange.invoke(letterMap)
             }
         )
         RoundButtonWithLetter(
@@ -152,7 +152,7 @@ fun WeekDaysRow(
             onClick = {
                 onClickFour.invoke()
                 letterMap["Чт"] = !letterMap["Чт"]!!
-                onDaysArrayChange.invoke(modifyMapToString(letterMap))
+                onDaysArrayChange.invoke(letterMap)
             }
         )
         RoundButtonWithLetter(
@@ -161,7 +161,7 @@ fun WeekDaysRow(
             onClick = {
                 onClickFive.invoke()
                 letterMap["Пт"] = !letterMap["Пт"]!!
-                onDaysArrayChange.invoke(modifyMapToString(letterMap))
+                onDaysArrayChange.invoke(letterMap)
             }
         )
         RoundButtonWithLetter(
@@ -170,7 +170,7 @@ fun WeekDaysRow(
             onClick = {
                 onClickSix.invoke()
                 letterMap["Сб"] = !letterMap["Сб"]!!
-                onDaysArrayChange.invoke(modifyMapToString(letterMap))
+                onDaysArrayChange.invoke(letterMap)
             }
         )
         RoundButtonWithLetter(
@@ -179,7 +179,7 @@ fun WeekDaysRow(
             onClick = {
                 onClickSeven.invoke()
                 letterMap["Вс"] = !letterMap["Вс"]!!
-                onDaysArrayChange.invoke(modifyMapToString(letterMap))
+                onDaysArrayChange.invoke(letterMap)
             }
         )
     }
@@ -212,8 +212,8 @@ fun WeekDaysRowPreview() {
         onClickFive = { isCheckedFive = !isCheckedFive },
         onClickSix = { isCheckedSix = !isCheckedSix },
         onClickSeven = { isCheckedSeven = !isCheckedSeven },
-        onDaysArrayChange = { newDaysArray ->
-            Log.i("DAYS", newDaysArray.toList().toString())
+        onDaysArrayChange = { letterMap ->
+            Log.i("DAYS", letterMap.toString())
         }
     )
 }

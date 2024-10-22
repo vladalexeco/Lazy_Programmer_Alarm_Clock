@@ -1,26 +1,30 @@
 package ru.vladalexeco.lazyprogrammer.presentation.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -28,12 +32,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.vladalexeco.lazyprogrammer.R
+import ru.vladalexeco.lazyprogrammer.core.util.util_functions.generateUniqueId
 import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
 import ru.vladalexeco.lazyprogrammer.presentation.state.AlarmListScreenEvent
 import ru.vladalexeco.lazyprogrammer.presentation.state.AlarmListScreenState
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
-import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.SubTextColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_list_screen.AddAlarmButton
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_list_screen.AlarmBlock
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_list_screen.SetTimeDialogBox
@@ -64,7 +68,8 @@ fun AlarmListScreen(
     var isHourCellFocused by remember { mutableStateOf(false) }
     var isMinuteCellFocused by remember { mutableStateOf(false) }
 
-    var currentAlarmId: String? by remember { mutableStateOf(null) }
+    var currentAlarmIndex: Int? by remember { mutableStateOf(null) }
+    var indexOfCurrentBlock: Int? by remember { mutableStateOf(null) }
 
     Box(
         modifier = Modifier
@@ -100,18 +105,59 @@ fun AlarmListScreen(
                         end = 16.dp,
                         top = 16.dp,
                         bottom = 84.dp
-                    )
+                    ),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 itemsIndexed(state.alarms) { index, alarm ->
                     AlarmBlock(
-                        index = index,
                         hourValue = alarm.hour,
                         minuteValue = alarm.minute,
+                        isExtended = state.alarmExtendedValueList[index],
                         isActivated = alarm.isActivated,
                         weekdays = alarm.weekdays,
-                        onClockClick = {},
-                        onDeleteClick = {},
-                        onSwitchClick = {}
+                        onClockClick = {
+                            currentAlarmIndex = index
+
+                            val currentAlarm = state.alarms[index]
+
+                            defaultHourValue = currentAlarm.hour
+                            defaultMinuteValue = currentAlarm.minute
+
+                            isVisibleSetTimeDialogBox = !isVisibleSetTimeDialogBox
+                        },
+                        onDeleteClick = {
+                            onEvent.invoke(AlarmListScreenEvent.DeleteAlarmEvent(state.alarms[currentAlarmIndex!!]))
+                        },
+                        onSwitchClick = { isChecked ->
+                            val newAlarm = state.alarms[index].copy(isActivated = isChecked)
+
+                            onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(newAlarm))
+                        },
+                        onExtendChange = {
+                            currentAlarmIndex = index
+
+                            val currentAlarm = state.alarms[index]
+                            val currentExtendValue = currentAlarm.isExtended
+                            val newAlarm = currentAlarm.copy(isExtended = !currentExtendValue)
+
+                            onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(alarm = newAlarm))
+
+                            if (indexOfCurrentBlock != index && indexOfCurrentBlock != null) {
+                                val currentAlarmForClose = state.alarms[indexOfCurrentBlock!!]
+                                val newCurrentAlarmForClose = currentAlarmForClose.copy(isExtended = false)
+
+                                onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(alarm = newCurrentAlarmForClose))
+                            }
+
+                            indexOfCurrentBlock = index
+                        },
+                        onWeekdaysChange = { letterMap ->
+                            val currentAlarm = state.alarms[currentAlarmIndex!!]
+                            val newWeekdays = letterMap.values.toList()
+                            val newAlarm = currentAlarm.copy(weekdays = newWeekdays, isExtended = true)
+
+                            onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(alarm = newAlarm))
+                        }
                     )
                 }
             }
@@ -122,10 +168,7 @@ fun AlarmListScreen(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 84.dp),
             onClick = {
-                currentAlarmId = null
-                // TODO каждому AlarmCard мы присваиваем id Alarm.
-                // TODO при нажатии на часы AlarmCard мы меняем currentAlarmId
-                // TODO при нажатии на плюсик или на часы AlarmCard мы проверяем currentAlarmId
+                currentAlarmIndex = null
                 isVisibleSetTimeDialogBox = !isVisibleSetTimeDialogBox
                 defaultHourValue = ""
                 defaultMinuteValue = ""
@@ -155,25 +198,33 @@ fun AlarmListScreen(
                     isVisibleSetTimeDialogBox = false
                 },
                 onConfirmClick = { hourValue, minuteValue ->
-                    if (currentAlarmId == null) {
+
+                    if (currentAlarmIndex == null) {
 
                         val newAlarm = Alarm(
+                            id = generateUniqueId(),
                             hour = hourValue,
                             minute = minuteValue,
                             weekdays = listOf(true, true, true, true, true, true, true),
+                            isExtended = false,
                             isActivated = true,
                         )
 
-                        onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(alarm = newAlarm))
+                        onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(newAlarm))
                     } else {
-                        // TODO меняем уже существующий
+                        val currentAlarm = state.alarms[currentAlarmIndex!!]
+
+                        val modifiedAlarm = currentAlarm.copy(hour = defaultHourValue, minute = defaultMinuteValue)
+
+                        onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(modifiedAlarm))
                     }
+
+                    isVisibleSetTimeDialogBox = !isVisibleSetTimeDialogBox
                 }
             )
         }
     }
 }
-
 
 @Composable
 @Preview(showBackground = true)

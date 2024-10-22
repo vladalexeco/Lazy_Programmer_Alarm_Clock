@@ -37,19 +37,15 @@ class AlarmListScreenViewModel @Inject constructor(
         when (alarmListScreenEvent) {
             is AlarmListScreenEvent.SaveAlarmEvent -> {
                 viewModelScope.launch {
-                    val insertJob = async {
-                        saveAlarmToDatabase(alarmListScreenEvent.alarm)
-                    }
-                    insertJob.await()
+                    val saveJob = async { saveAlarmToDatabase(alarmListScreenEvent.alarm) }
+                    saveJob.await()
                     getAlarmsFromDatabase()
                 }
             }
 
             is AlarmListScreenEvent.DeleteAlarmEvent -> {
                 viewModelScope.launch {
-                    val deleteJob = async {
-                        deleteAlarmFromDatabase(alarmListScreenEvent.alarm)
-                    }
+                    val deleteJob = async { deleteAlarmFromDatabase(alarmListScreenEvent.alarm) }
                     deleteJob.await()
                     getAlarmsFromDatabase()
                 }
@@ -61,9 +57,21 @@ class AlarmListScreenViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.Main) {
             getAllAlarmsFromDatabaseUseCase().collect { alarmList ->
                 if (alarmList.isNotEmpty()) {
+
+                    val timeSortedAlarmList = alarmList.sortedBy {
+                        alarm -> alarm.hour.toInt() * 60 + alarm.minute.toInt()
+                    }
+
                     _uiState.update { alarmListScreenState ->
                         alarmListScreenState.copy(
-                            alarms = alarmList
+                            alarms = timeSortedAlarmList,
+                            alarmExtendedValueList = timeSortedAlarmList.map { alarm -> alarm.isExtended }
+                        )
+                    }
+                } else {
+                    _uiState.update { alarmListScreenState ->
+                        alarmListScreenState.copy(
+                            alarms = emptyList(),
                         )
                     }
                 }
@@ -77,5 +85,16 @@ class AlarmListScreenViewModel @Inject constructor(
 
     private suspend fun deleteAlarmFromDatabase(alarm: Alarm) {
         deleteAlarmFromDatabaseUseSase(alarm)
+    }
+
+    private fun changeExtendedValue(index: Int, value: Boolean) {
+        val currentExtendValueList = _uiState.value.alarmExtendedValueList.toMutableList()
+        currentExtendValueList[index] = value
+
+        _uiState.update { alarmListScreenState ->
+            alarmListScreenState.copy(
+                alarmExtendedValueList = currentExtendValueList
+            )
+        }
     }
 }

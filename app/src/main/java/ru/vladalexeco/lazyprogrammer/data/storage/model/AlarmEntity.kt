@@ -6,11 +6,12 @@ import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
 
 @Entity(tableName = "alarm_table")
 data class AlarmEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int,
+    @PrimaryKey(autoGenerate = false)
+    val id: String,
     val hour: String,
     val minute: String,
     val weekdays: List<Boolean>,
+    val isExtended: Boolean,
     val isActivated: Boolean,
     val melody: String?
 )
@@ -21,6 +22,7 @@ fun AlarmEntity.toAlarm(): Alarm {
         hour = this.hour,
         minute = this.minute,
         weekdays = this.weekdays,
+        isExtended = this.isExtended,
         isActivated = this.isActivated,
         melody = this.melody
     )
@@ -32,6 +34,7 @@ fun Alarm.toAlarmEntity(): AlarmEntity {
         hour = this.hour,
         minute = this.minute,
         weekdays = this.weekdays,
+        isExtended = this.isExtended,
         isActivated = this.isActivated,
         melody = this.melody
     )
