@@ -4,10 +4,15 @@ import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Switch
@@ -15,6 +20,7 @@ import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -27,6 +33,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.vladalexeco.lazyprogrammer.R
+import ru.vladalexeco.lazyprogrammer.core.util.util_functions.modifyMapToString
+import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.CardColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.DialogBoxTextFieldColor
@@ -35,63 +43,21 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.SubTextColor
 
 @Composable
-fun ArrowButton(
-    modifier: Modifier = Modifier,
-    isClosed: Boolean,
-    onClick: () -> Unit
-) {
-
-    Box(modifier = modifier
-        .clickable { onClick.invoke() }
-        .background(color = DialogBoxTextFieldColor, shape = CircleShape)
-    ) {
-        if (isClosed) {
-            Image(
-                painter = painterResource(id = R.drawable.chevron_down),
-                contentDescription = null,
-                colorFilter = ColorFilter.tint(LightTextColor)
-            )
-        } else {
-            Image(
-                painter = painterResource(id = R.drawable.chevron_up),
-                contentDescription = null,
-                colorFilter = ColorFilter.tint(LightTextColor)
-            )
-        }
-    }
-}
-
-@Composable
-@Preview(showBackground = true)
-fun ArrowButtonPreview() {
-    var isClosedState by remember {
-        mutableStateOf(false)
-    }
-
-    ArrowButton(
-        isClosed = isClosedState,
-        onClick = { isClosedState = !isClosedState }
-    )
-}
-
-
-
-
-
-@Composable
 fun AlarmBlock(
-
+    isExtended: Boolean,
+    hourValue: String,
+    minuteValue: String,
+    isActivated: Boolean,
+    weekdays: List<Boolean>,
+    onExtendChange: () -> Unit,
+    onClockClick: () -> Unit,
+    onDeleteClick: () -> Unit,
+    onSwitchClick: (Boolean) -> Unit,
+    onWeekdaysChange: (Map<String, Boolean>) -> Unit
 ) {
-    var isExtended by remember {
-        mutableStateOf(false)
-    }
 
     var isClockDialActivated by remember {
-        mutableStateOf(false)
-    }
-
-    var clockDialValue by remember {
-        mutableStateOf("09:45")
+        mutableStateOf(isActivated)
     }
 
     var clockInformationValue by remember {
@@ -102,13 +68,13 @@ fun AlarmBlock(
         mutableStateOf("Выбрать мелодию")
     }
 
-    var isCheckedOne by remember { mutableStateOf(true) }
-    var isCheckedTwo by remember { mutableStateOf(true) }
-    var isCheckedThree by remember { mutableStateOf(true) }
-    var isCheckedFour by remember { mutableStateOf(true) }
-    var isCheckedFive by remember { mutableStateOf(true) }
-    var isCheckedSix by remember { mutableStateOf(true) }
-    var isCheckedSeven by remember { mutableStateOf(true) }
+    var isCheckedOne by remember { mutableStateOf(weekdays[0]) }
+    var isCheckedTwo by remember { mutableStateOf(weekdays[1]) }
+    var isCheckedThree by remember { mutableStateOf(weekdays[2]) }
+    var isCheckedFour by remember { mutableStateOf(weekdays[3]) }
+    var isCheckedFive by remember { mutableStateOf(weekdays[4]) }
+    var isCheckedSix by remember { mutableStateOf(weekdays[5]) }
+    var isCheckedSeven by remember { mutableStateOf(weekdays[6]) }
 
     Column(
         modifier = Modifier
@@ -121,20 +87,23 @@ fun AlarmBlock(
                 .align(Alignment.End)
                 .padding(end = 16.dp, top = 8.dp),
             isClosed = isExtended,
-            onClick = { isExtended = !isExtended }
+            onClick = {
+                onExtendChange.invoke()
+            }
         )
 
         ClockDial(
             modifier = Modifier.padding(start = 16.dp),
             isActivated = isClockDialActivated,
-            timeValue = clockDialValue,
-            onClockDialClick = {}
+            hourValue = hourValue,
+            minuteValue = minuteValue,
+            onClockDialClick = { onClockClick.invoke() }
         )
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp)
+                .padding(start = 16.dp, end = 16.dp, bottom = 12.dp)
         ) {
 
             DaysAlarmInfoView(
@@ -146,7 +115,10 @@ fun AlarmBlock(
             Switch(
                 modifier = Modifier.align(Alignment.TopEnd),
                 checked = isClockDialActivated,
-                onCheckedChange = { isClockDialActivated = it },
+                onCheckedChange = { isActivated ->
+                    isClockDialActivated = isActivated
+                    onSwitchClick.invoke(isActivated)
+                },
                 colors = SwitchDefaults.colors(
 //                    checkedThumbColor = Color.Green,
                     uncheckedThumbColor = SubTextColor,
@@ -172,15 +144,16 @@ fun AlarmBlock(
                 onClickFive = { isCheckedFive = !isCheckedFive },
                 onClickSix = { isCheckedSix = !isCheckedSix },
                 onClickSeven = { isCheckedSeven = !isCheckedSeven },
-                onDaysArrayChange = { daysInfo ->
-                    clockInformationValue = daysInfo
+                onDaysArrayChange = { letterMap ->
+                    clockInformationValue = modifyMapToString(letterMap)
+                    onWeekdaysChange.invoke(letterMap)
                 }
             )
 
             Text(
                 modifier = Modifier
                     .padding(start = 16.dp, top = 24.dp)
-                    .clickable {  },
+                    .clickable { },
                 text = alarmMelodyName,
                 style = TextStyle(color = MainTextColor)
             )
@@ -188,7 +161,7 @@ fun AlarmBlock(
             Text(
                 modifier = Modifier
                     .padding(start = 16.dp, top = 24.dp, bottom = 16.dp)
-                    .clickable {  },
+                    .clickable { onDeleteClick.invoke() },
                 text = "Удалить",
                 style = TextStyle(color = MainTextColor)
             )
@@ -198,70 +171,44 @@ fun AlarmBlock(
 }
 
 @Composable
-fun ClockDial(
-    modifier: Modifier = Modifier,
-    isActivated: Boolean,
-    timeValue: String,
-    onClockDialClick: () -> Unit
-) {
-    Text(
-        modifier = modifier.clickable { onClockDialClick.invoke() },
-        text = timeValue,
-        style = TextStyle(
-            color = if (isActivated) MainTextColor else SubTextColor,
-            fontSize = 48.sp
-        )
-    )
-}
-
-@Composable
-fun DaysAlarmInfoView(
-    modifier: Modifier = Modifier,
-    textMessage: String,
-    isClockDialActivated: Boolean,
-) {
-    Text(
-        modifier = modifier,
-        text = textMessage,
-        style = TextStyle(
-            color = if (isClockDialActivated) MainTextColor else SubTextColor
-        )
-    )
-}
-
-@Composable
-@Preview(showBackground = true)
-fun DaysAlarmInfoViewPreview() {
-    DaysAlarmInfoView(
-        textMessage = "Каждый день",
-        isClockDialActivated = false
-    )
-}
-
-@Composable
-@Preview(showBackground = true, backgroundColor = 0xFF261E26)
-fun ClockDialPreview() {
-
-    val isActivated by remember {
-        mutableStateOf(true)
-    }
-
-    val timeValue by remember {
-        mutableStateOf("09:45")
-    }
-
-    ClockDial(
-        isActivated = isActivated,
-        timeValue = timeValue,
-        onClockDialClick = {}
-    )
-}
-
-@Composable
 @Preview(showBackground = true)
 fun AlarmBlockPreview() {
-    AlarmBlock()
+
+    var alarm by remember {
+        mutableStateOf(
+            Alarm(
+                id = "c",
+                hour = "23",
+                minute = "02",
+                weekdays = listOf(true, true, true, true, true, true, true),
+                isExtended = true,
+                isActivated = true,
+                melody = null
+            )
+        )
+    }
+
+    AlarmBlock(
+        isExtended = alarm.isExtended,
+        hourValue = alarm.hour,
+        minuteValue = alarm.minute,
+        isActivated = alarm.isActivated,
+        weekdays = alarm.weekdays,
+        onExtendChange = {
+            val currentExtended = alarm.isExtended
+
+            alarm = alarm.copy(isExtended = !currentExtended)
+        },
+        onSwitchClick = {},
+        onClockClick = {},
+        onDeleteClick = {},
+        onWeekdaysChange = { letterMap ->
+
+        }
+    )
 }
+
+
 
 
 

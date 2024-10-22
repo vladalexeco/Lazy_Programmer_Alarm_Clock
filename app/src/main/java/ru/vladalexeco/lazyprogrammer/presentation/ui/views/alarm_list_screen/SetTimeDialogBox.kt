@@ -117,19 +117,19 @@ fun TimeTextFieldPreview() {
 @Composable
 fun SetTimeDialogBox(
     modifier: Modifier = Modifier,
-    width: Dp,
-    height: Dp,
-    roundCorner: Dp,
-    backgroundColor: Color,
+    width: Dp = 240.dp,
+    height: Dp = 180.dp,
+    roundCorner: Dp = 12.dp,
+    backgroundColor: Color = DialogBoxColor,
     hourValue: String,
     minuteValue: String,
     onHourChange: (String) -> Unit,
-    onMinuteChange: (String ) -> Unit,
+    onMinuteChange: (String) -> Unit,
     isHourFocused: Boolean,
     isMinuteFocused: Boolean,
     onHourFocusChange: (Boolean) -> Unit,
     onMinuteFocusChange: (Boolean) -> Unit,
-    onConfirmClick: () -> Unit,
+    onConfirmClick: (String, String) -> Unit,
     onCancelClick: () -> Unit
 ) {
     Box(
@@ -214,7 +214,9 @@ fun SetTimeDialogBox(
                     style = TextStyle(color = AccentColor, fontSize = 16.sp)
                 )
                 Text(
-                    modifier = Modifier.clickable { onConfirmClick.invoke() },
+                    modifier = Modifier.clickable {
+                        onConfirmClick.invoke(hourValue, minuteValue)
+                    },
                     text = "OK",
                     style = TextStyle(color = AccentColor, fontSize = 16.sp)
                 )
@@ -234,10 +236,6 @@ fun SetTimeDialogBoxPreview() {
     var isHourFocused by remember { mutableStateOf(false) }
 
     SetTimeDialogBox(
-        width = 240.dp,
-        height = 180.dp,
-        roundCorner = 12.dp,
-        backgroundColor = DialogBoxColor,
         hourValue = hourValue,
         minuteValue = minuteValue,
         onHourChange = { newHourValue ->
@@ -254,7 +252,9 @@ fun SetTimeDialogBoxPreview() {
         onMinuteFocusChange = { isFocused ->
             isMinuteFocused = isFocused
         },
-        onConfirmClick = {},
+        onConfirmClick = { hourValue, minuteValue ->
+
+        },
         onCancelClick = {}
     )
 }
