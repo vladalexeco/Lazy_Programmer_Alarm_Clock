@@ -1,6 +1,12 @@
 package ru.vladalexeco.lazyprogrammer.presentation.ui.screens
 
+import android.content.Context
+import android.content.pm.PackageManager
+import android.os.Build
 import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -30,6 +36,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.vladalexeco.lazyprogrammer.R
 import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMaker
@@ -45,6 +52,7 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_list_screen.Ala
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_list_screen.SetTimeDialogBox
 import ru.vladalexeco.lazyprogrammer.presentation.viewmodel.AlarmListScreenViewModel
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AlarmListScreen() {
 
@@ -59,11 +67,26 @@ fun AlarmListScreen() {
     )
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AlarmListScreen(
     state: AlarmListScreenState,
     onEvent: (AlarmListScreenEvent) -> Unit
 ) {
+    val context = LocalContext.current
+    val permissionGranted = remember { mutableStateOf(isPermissionGranted(context)) }
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            permissionGranted.value = true
+        } else {
+            showEducationalDialog(context)
+        }
+    }
+
+
     var isVisibleSetTimeDialogBox by remember { mutableStateOf(false) }
     var defaultHourValue by remember { mutableStateOf("") }
     var defaultMinuteValue by remember { mutableStateOf("") }
@@ -172,10 +195,14 @@ fun AlarmListScreen(
                 .align(Alignment.BottomCenter)
                 .padding(bottom = 84.dp),
             onClick = {
-                currentAlarmIndex = null
-                isVisibleSetTimeDialogBox = !isVisibleSetTimeDialogBox
-                defaultHourValue = ""
-                defaultMinuteValue = ""
+                if (!permissionGranted.value) {
+                    launcher.launch(android.Manifest.permission.POST_NOTIFICATIONS)
+                } else {
+                    currentAlarmIndex = null
+                    isVisibleSetTimeDialogBox = !isVisibleSetTimeDialogBox
+                    defaultHourValue = ""
+                    defaultMinuteValue = ""
+                }
             }
         )
 
@@ -205,8 +232,6 @@ fun AlarmListScreen(
 
                     if (currentAlarmIndex == null) {
 
-
-
                         val newAlarm = Alarm(
                             id = generateUniqueId(),
                             hour = hourValue,
@@ -217,10 +242,11 @@ fun AlarmListScreen(
                         )
 
                         alarmClockMaker.createAlarm(
-                            alarm = newAlarm, triggerTime =  System.currentTimeMillis() + 5000
+                            alarm = newAlarm, triggerTime = System.currentTimeMillis() + 5000
                         )
 
                         onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(newAlarm))
+
                     } else {
                         val currentAlarm = state.alarms[currentAlarmIndex!!]
 
@@ -236,6 +262,19 @@ fun AlarmListScreen(
     }
 }
 
+fun isPermissionGranted(context: Context) =
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+        ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.POST_NOTIFICATIONS
+        ) == PackageManager.PERMISSION_GRANTED
+    } else {
+        true
+    }
+
+
+
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 @Preview(showBackground = true)
 fun AlarmListScreenPreview() {
@@ -243,6 +282,10 @@ fun AlarmListScreenPreview() {
         state = AlarmListScreenState(),
         onEvent = {}
     )
+}
+
+fun showEducationalDialog(context: Context) {
+    Toast.makeText(context, "No permissions", Toast.LENGTH_SHORT).show()
 }
 
 

@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.vladalexeco.lazyprogrammer.R
+import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmSoundPlayer
 import ru.vladalexeco.lazyprogrammer.core.util.util_functions.buildColoredString
 import ru.vladalexeco.lazyprogrammer.domain.model.AlarmTask
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
@@ -169,6 +170,7 @@ fun AlarmTaskScreen(
             backgroundColor = WrongAnswerColor,
             textColor = MainTextColor,
             onClick = {
+                AlarmSoundPlayer.stop()
                 onCompleteClick.invoke()
             }
         )
