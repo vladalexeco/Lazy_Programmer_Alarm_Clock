@@ -32,6 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.vladalexeco.lazyprogrammer.R
+import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMaker
+import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMakerImpl
 import ru.vladalexeco.lazyprogrammer.core.util.util_functions.generateUniqueId
 import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
 import ru.vladalexeco.lazyprogrammer.presentation.state.AlarmListScreenEvent
@@ -70,6 +72,8 @@ fun AlarmListScreen(
 
     var currentAlarmIndex: Int? by remember { mutableStateOf(null) }
     var indexOfCurrentBlock: Int? by remember { mutableStateOf(null) }
+
+    val alarmClockMaker = AlarmClockMakerImpl(context = LocalContext.current)
 
     Box(
         modifier = Modifier
@@ -201,6 +205,8 @@ fun AlarmListScreen(
 
                     if (currentAlarmIndex == null) {
 
+
+
                         val newAlarm = Alarm(
                             id = generateUniqueId(),
                             hour = hourValue,
@@ -208,6 +214,10 @@ fun AlarmListScreen(
                             weekdays = listOf(true, true, true, true, true, true, true),
                             isExtended = false,
                             isActivated = true,
+                        )
+
+                        alarmClockMaker.createAlarm(
+                            alarm = newAlarm, triggerTime =  System.currentTimeMillis() + 5000
                         )
 
                         onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(newAlarm))

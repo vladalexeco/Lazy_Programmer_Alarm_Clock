@@ -38,7 +38,10 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.But
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.SimpleButton
 
 @Composable
-fun AlarmTaskScreen() {
+fun AlarmTaskScreen(
+    onCompleteClick: () -> Unit
+) {
+
     // TODO это мок объект. В дальнейшем надо заменить его на объект, который будет приходить
     // TODO из базы данных (удаленной или локальной) при помощи вьюмодели
     val alarmTask = AlarmTask(
@@ -165,7 +168,9 @@ fun AlarmTaskScreen() {
             text = "Завершить",
             backgroundColor = WrongAnswerColor,
             textColor = MainTextColor,
-            onClick = {}
+            onClick = {
+                onCompleteClick.invoke()
+            }
         )
     }
 }
@@ -173,5 +178,7 @@ fun AlarmTaskScreen() {
 @Composable
 @Preview(showBackground = true)
 fun AlarmTaskScreenPreview() {
-    AlarmTaskScreen()
+    AlarmTaskScreen(
+        onCompleteClick = {}
+    )
 }

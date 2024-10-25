@@ -19,3 +19,7 @@ object Results: LazyProgrammerDestination {
 object Settings: LazyProgrammerDestination {
     override val route = "Settings"
 }
+
+object Quest: LazyProgrammerDestination {
+    override val route = "Quest"
+}
