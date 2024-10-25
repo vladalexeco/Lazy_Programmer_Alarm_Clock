@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import ru.vladalexeco.lazyprogrammer.R
+import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmSoundPlayer
 import ru.vladalexeco.lazyprogrammer.core.util.util_functions.buildColoredString
 import ru.vladalexeco.lazyprogrammer.domain.model.AlarmTask
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
@@ -38,7 +39,10 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.But
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.SimpleButton
 
 @Composable
-fun AlarmTaskScreen() {
+fun AlarmTaskScreen(
+    onCompleteClick: () -> Unit
+) {
+
     // TODO это мок объект. В дальнейшем надо заменить его на объект, который будет приходить
     // TODO из базы данных (удаленной или локальной) при помощи вьюмодели
     val alarmTask = AlarmTask(
@@ -165,7 +169,10 @@ fun AlarmTaskScreen() {
             text = "Завершить",
             backgroundColor = WrongAnswerColor,
             textColor = MainTextColor,
-            onClick = {}
+            onClick = {
+                AlarmSoundPlayer.stop()
+                onCompleteClick.invoke()
+            }
         )
     }
 }
@@ -173,5 +180,7 @@ fun AlarmTaskScreen() {
 @Composable
 @Preview(showBackground = true)
 fun AlarmTaskScreenPreview() {
-    AlarmTaskScreen()
+    AlarmTaskScreen(
+        onCompleteClick = {}
+    )
 }

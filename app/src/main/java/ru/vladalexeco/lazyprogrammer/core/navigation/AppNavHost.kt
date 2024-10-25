@@ -6,6 +6,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.AlarmListScreen
+import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.AlarmTaskScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.CreateTaskScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.SettingsScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.StatisticsScreen
@@ -34,6 +35,14 @@ fun AppNavHost(
 
         composable(route = Settings.route) {
             SettingsScreen()
+        }
+
+        composable(route = Quest.route) {
+            AlarmTaskScreen(
+                onCompleteClick = {
+                    navHostController.navigate(route = Alarms.route)
+                }
+            )
         }
     }
 }
