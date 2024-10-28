@@ -1,8 +1,5 @@
 package ru.vladalexeco.lazyprogrammer.domain.model
 
-import ru.vladalexeco.lazyprogrammer.core.util.app_constants.UNKNOWN_ID
-import ru.vladalexeco.lazyprogrammer.core.util.util_functions.generateUniqueId
-
 data class Alarm(
     val id: String,
     val hour: String,

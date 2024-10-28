@@ -9,12 +9,42 @@ import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
 import ru.vladalexeco.lazyprogrammer.R
+import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMakerImpl
 import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmSoundPlayer
+import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
 import ru.vladalexeco.lazyprogrammer.presentation.activities.MainActivity
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context != null) {
+
+            val alarmClockMaker = AlarmClockMakerImpl(context)
+
+            val alarmId = intent?.getStringExtra("alarmId") ?: return
+            val alarmHour = intent.getStringExtra("hour") ?: "0"
+            val alarmMinute = intent.getStringExtra("minute") ?: "0"
+            val alarmWeekdays = intent.getBooleanArrayExtra("weekdays") ?:
+            booleanArrayOf(true, true, true, true, true, true, true)
+            val alarmIsExtended = intent.getBooleanExtra("isExtended", true)
+            val alarmIsActivated = intent.getBooleanExtra("isActivated", true)
+            val alarmMelody = intent.getStringExtra("melody")
+
+            val dayOfWeek = intent.getIntExtra("dayOfWeek", -1)
+
+            if (dayOfWeek != -1) {
+                val alarm = Alarm(
+                    id = alarmId,
+                    hour = alarmHour,
+                    minute = alarmMinute,
+                    weekdays = alarmWeekdays.toList(),
+                    isExtended = alarmIsExtended,
+                    isActivated = alarmIsActivated,
+                    melody = alarmMelody
+                )
+
+                alarmClockMaker.scheduleAlarmForDay(alarm, dayOfWeek)
+            }
+
             AlarmSoundPlayer.start(context)
 
             showNotification(context)

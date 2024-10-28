@@ -19,14 +19,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.toMutableStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -39,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.vladalexeco.lazyprogrammer.R
-import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMaker
 import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMakerImpl
 import ru.vladalexeco.lazyprogrammer.core.util.util_functions.generateUniqueId
 import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
@@ -158,12 +154,22 @@ fun AlarmListScreen(
                             isVisibleSetTimeDialogBox = !isVisibleSetTimeDialogBox
                         },
                         onDeleteClick = {
-                            onEvent.invoke(AlarmListScreenEvent.DeleteAlarmEvent(state.alarms[currentAlarmIndex!!]))
+                            val currentAlarm = state.alarms[index]
+
+                            alarmClockMaker.cancelAlarm(currentAlarm)
+
+                            onEvent.invoke(AlarmListScreenEvent.DeleteAlarmEvent(currentAlarm))
                         },
                         onSwitchClick = { isChecked ->
                             val newAlarm = state.alarms[index].copy(isActivated = isChecked)
 
                             onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(newAlarm))
+
+                            if (isChecked) {
+                                alarmClockMaker.createWeeklyAlarm(newAlarm)
+                            } else {
+                                alarmClockMaker.cancelAlarm(newAlarm)
+                            }
                         },
                         onExtendChange = {
                             currentAlarmIndex = index
@@ -189,6 +195,8 @@ fun AlarmListScreen(
                             val newAlarm = currentAlarm.copy(weekdays = newWeekdays, isExtended = true)
 
                             onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(alarm = newAlarm))
+
+                            alarmClockMaker.createWeeklyAlarm(newAlarm)
                         }
                     )
                 }
@@ -246,18 +254,17 @@ fun AlarmListScreen(
                             isActivated = true,
                         )
 
-                        alarmClockMaker.createAlarm(
-                            alarm = newAlarm, triggerTime = System.currentTimeMillis() + 5000
-                        )
-
                         onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(newAlarm))
 
+                        alarmClockMaker.createWeeklyAlarm(alarm = newAlarm)
                     } else {
                         val currentAlarm = state.alarms[currentAlarmIndex!!]
 
                         val modifiedAlarm = currentAlarm.copy(hour = defaultHourValue, minute = defaultMinuteValue)
 
                         onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(modifiedAlarm))
+
+                        alarmClockMaker.createWeeklyAlarm(alarm = modifiedAlarm)
                     }
 
                     isVisibleSetTimeDialogBox = !isVisibleSetTimeDialogBox
