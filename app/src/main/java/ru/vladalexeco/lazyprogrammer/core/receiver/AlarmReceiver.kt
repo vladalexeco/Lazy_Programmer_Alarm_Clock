@@ -37,7 +37,7 @@ class AlarmReceiver : BroadcastReceiver() {
         val notification = NotificationCompat.Builder(context, "alarm_channel_id")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setContentTitle("Будильник")
-            .setContentText("Нажмите, чтобы остановить будильник")
+            .setContentText("Нажмите, чтобы начать выполнять задание")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setContentIntent(pendingIntent)
             .setAutoCancel(true)
