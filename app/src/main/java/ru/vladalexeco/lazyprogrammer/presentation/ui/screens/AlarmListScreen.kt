@@ -76,17 +76,6 @@ fun AlarmListScreen(
     val context = LocalContext.current
     val permissionGranted = remember { mutableStateOf(isPermissionGranted(context)) }
 
-    val launcher = rememberLauncherForActivityResult(
-        contract = ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            permissionGranted.value = true
-        } else {
-            showEducationalDialog(context)
-        }
-    }
-
-
     var isVisibleSetTimeDialogBox by remember { mutableStateOf(false) }
     var defaultHourValue by remember { mutableStateOf("") }
     var defaultMinuteValue by remember { mutableStateOf("") }
@@ -97,6 +86,22 @@ fun AlarmListScreen(
     var indexOfCurrentBlock: Int? by remember { mutableStateOf(null) }
 
     val alarmClockMaker = AlarmClockMakerImpl(context = LocalContext.current)
+
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            permissionGranted.value = true
+
+            currentAlarmIndex = null
+            isVisibleSetTimeDialogBox = !isVisibleSetTimeDialogBox
+            defaultHourValue = ""
+            defaultMinuteValue = ""
+
+        } else {
+            showEducationalDialog(context)
+        }
+    }
 
     Box(
         modifier = Modifier
