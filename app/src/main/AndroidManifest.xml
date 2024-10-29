@@ -20,7 +20,7 @@
         android:theme="@style/Theme.LazyProgrammer"
         tools:targetApi="31">
         <activity
-            android:name=".presentation.activities.MainActivity"
+            android:name=".core.MainActivity"
             android:exported="true"
             android:label="@string/app_name"
             android:theme="@style/Theme.LazyProgrammer">

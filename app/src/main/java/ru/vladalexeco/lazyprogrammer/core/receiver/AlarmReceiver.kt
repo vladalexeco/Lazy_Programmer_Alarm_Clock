@@ -8,17 +8,19 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import androidx.core.app.NotificationCompat
+import dagger.hilt.android.EntryPointAccessors
 import ru.vladalexeco.lazyprogrammer.R
-import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMakerImpl
 import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmSoundPlayer
+import ru.vladalexeco.lazyprogrammer.core.di.AlarmReceiverEntryPoint
 import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
-import ru.vladalexeco.lazyprogrammer.presentation.activities.MainActivity
+import ru.vladalexeco.lazyprogrammer.core.MainActivity
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         if (context != null) {
 
-            val alarmClockMaker = AlarmClockMakerImpl(context)
+            val entryPoint = EntryPointAccessors.fromApplication(context, AlarmReceiverEntryPoint::class.java)
+            val scheduleAlarmForDayUseCase = entryPoint.getScheduleAlarmForDayUseCase()
 
             val alarmId = intent?.getStringExtra("alarmId") ?: return
             val alarmHour = intent.getStringExtra("hour") ?: "0"
@@ -42,7 +44,7 @@ class AlarmReceiver : BroadcastReceiver() {
                     melody = alarmMelody
                 )
 
-                alarmClockMaker.scheduleAlarmForDay(alarm, dayOfWeek)
+                scheduleAlarmForDayUseCase.invoke(alarm = alarm, dayOfWeek = dayOfWeek)
             }
 
             AlarmSoundPlayer.start(context)
@@ -65,7 +67,7 @@ class AlarmReceiver : BroadcastReceiver() {
         )
 
         val notification = NotificationCompat.Builder(context, "alarm_channel_id")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.alarm_list_icon)
             .setContentTitle("Будильник")
             .setContentText("Нажмите, чтобы начать выполнять задание")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
@@ -74,6 +76,7 @@ class AlarmReceiver : BroadcastReceiver() {
             .build()
 
         val notificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 "alarm_channel_id",

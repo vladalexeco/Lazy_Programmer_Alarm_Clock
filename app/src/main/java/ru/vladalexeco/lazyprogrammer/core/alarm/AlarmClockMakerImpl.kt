@@ -9,9 +9,10 @@ import ru.vladalexeco.lazyprogrammer.core.receiver.AlarmReceiver
 import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
 import java.util.Calendar
 
-class AlarmClockMakerImpl(private val context: Context) : AlarmClockMaker {
-
-    private val alarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+class AlarmClockMakerImpl(
+    private val context: Context,
+    private val alarmManager: AlarmManager
+) : AlarmClockMaker {
 
     private val daysOfWeek = listOf(
         Calendar.MONDAY,
@@ -23,7 +24,6 @@ class AlarmClockMakerImpl(private val context: Context) : AlarmClockMaker {
         Calendar.SUNDAY
     )
 
-    @SuppressLint("ScheduleExactAlarm")
     override fun createWeeklyAlarm(alarm: Alarm) {
 
         for ((index, isActive) in alarm.weekdays.withIndex()) {
@@ -33,33 +33,7 @@ class AlarmClockMakerImpl(private val context: Context) : AlarmClockMaker {
         }
     }
 
-    override fun editAlarm(alarm: Alarm) {
-
-    }
-
-    override fun cancelAlarm(alarm: Alarm) {
-
-        val daysOfWeekWithActiveAlarm = ArrayList<Int>()
-
-        for ((index, day) in daysOfWeek.withIndex()) {
-            if (alarm.weekdays[index]) {
-                daysOfWeekWithActiveAlarm.add(day)
-            }
-        }
-
-        for (dayOfWeek in daysOfWeekWithActiveAlarm) {
-            val intent = Intent(context, AlarmReceiver::class.java)
-            val pendingIntent = PendingIntent.getBroadcast(
-                context,
-                alarm.id.hashCode() + dayOfWeek,
-                intent,
-                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-            )
-            alarmManager.cancel(pendingIntent)
-        }
-    }
-
-    fun scheduleAlarmForDay(alarm: Alarm, dayOfWeek: Int) {
+    override fun scheduleAlarmForDay(alarm: Alarm, dayOfWeek: Int) {
 
         val calendar = Calendar.getInstance().apply {
             set(Calendar.HOUR_OF_DAY, alarm.hour.toInt())
@@ -96,5 +70,27 @@ class AlarmClockMakerImpl(private val context: Context) : AlarmClockMaker {
             calendar.timeInMillis,
             pendingIntent
         )
+    }
+
+    override fun cancelAlarm(alarm: Alarm) {
+
+        val daysOfWeekWithActiveAlarm = ArrayList<Int>()
+
+        for ((index, day) in daysOfWeek.withIndex()) {
+            if (alarm.weekdays[index]) {
+                daysOfWeekWithActiveAlarm.add(day)
+            }
+        }
+
+        for (dayOfWeek in daysOfWeekWithActiveAlarm) {
+            val intent = Intent(context, AlarmReceiver::class.java)
+            val pendingIntent = PendingIntent.getBroadcast(
+                context,
+                alarm.id.hashCode() + dayOfWeek,
+                intent,
+                PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+            )
+            alarmManager.cancel(pendingIntent)
+        }
     }
 }
