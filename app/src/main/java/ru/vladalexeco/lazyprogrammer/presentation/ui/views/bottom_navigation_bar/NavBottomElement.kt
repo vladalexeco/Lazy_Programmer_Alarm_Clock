@@ -42,7 +42,7 @@ fun NavBottomElement(
     Column(
         modifier = modifier
             .width(75.dp)
-            .height(72.dp)
+            .height(80.dp)
             .clickable(
                 indication = null,
                 interactionSource = remember { MutableInteractionSource() },
@@ -53,10 +53,10 @@ fun NavBottomElement(
                 }
             ),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
         Icon(
-            modifier = Modifier.size(40.dp),
+            modifier = Modifier.padding(top = 6.dp).size(40.dp),
             painter = painter,
             contentDescription = null,
             tint = if (isSelected) onFocusTint else outFocusTint,

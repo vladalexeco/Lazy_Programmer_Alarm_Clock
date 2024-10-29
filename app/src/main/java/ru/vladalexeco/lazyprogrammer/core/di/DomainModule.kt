@@ -8,6 +8,7 @@ import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMaker
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.usecase.CancelAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.CreateWeeklyAlarmUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.DeleteAlarmFromDatabaseUseSase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetAllAlarmsFromDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmToDatabaseUseCase
 
@@ -27,6 +28,13 @@ class DomainModule {
         alarmStorageRepository: AlarmStorageRepository
     ): SaveAlarmToDatabaseUseCase {
         return SaveAlarmToDatabaseUseCase(alarmStorageRepository = alarmStorageRepository)
+    }
+
+    @Provides
+    fun provideDeleteAlarmFromDatabaseUseCase(
+        alarmStorageRepository: AlarmStorageRepository
+    ): DeleteAlarmFromDatabaseUseSase {
+        return DeleteAlarmFromDatabaseUseSase(alarmStorageRepository = alarmStorageRepository)
     }
 
     @Provides

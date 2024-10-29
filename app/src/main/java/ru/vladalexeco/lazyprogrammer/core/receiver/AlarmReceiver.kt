@@ -13,7 +13,7 @@ import ru.vladalexeco.lazyprogrammer.R
 import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmSoundPlayer
 import ru.vladalexeco.lazyprogrammer.core.di.AlarmReceiverEntryPoint
 import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
-import ru.vladalexeco.lazyprogrammer.presentation.activities.MainActivity
+import ru.vladalexeco.lazyprogrammer.core.MainActivity
 
 class AlarmReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
@@ -67,7 +67,7 @@ class AlarmReceiver : BroadcastReceiver() {
         )
 
         val notification = NotificationCompat.Builder(context, "alarm_channel_id")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.alarm_list_icon)
             .setContentTitle("Будильник")
             .setContentText("Нажмите, чтобы начать выполнять задание")
             .setPriority(NotificationCompat.PRIORITY_HIGH)
