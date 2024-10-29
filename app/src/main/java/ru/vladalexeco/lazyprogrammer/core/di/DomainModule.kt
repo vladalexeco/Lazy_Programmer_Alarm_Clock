@@ -4,7 +4,10 @@ import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
+import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMaker
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmStorageRepository
+import ru.vladalexeco.lazyprogrammer.domain.usecase.CancelAlarmUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.CreateWeeklyAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetAllAlarmsFromDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmToDatabaseUseCase
 
@@ -24,5 +27,19 @@ class DomainModule {
         alarmStorageRepository: AlarmStorageRepository
     ): SaveAlarmToDatabaseUseCase {
         return SaveAlarmToDatabaseUseCase(alarmStorageRepository = alarmStorageRepository)
+    }
+
+    @Provides
+    fun provideCreateWeeklyAlarmUseCase(
+        alarmClockMaker: AlarmClockMaker
+    ): CreateWeeklyAlarmUseCase {
+        return CreateWeeklyAlarmUseCase(alarmClockMaker = alarmClockMaker)
+    }
+
+    @Provides
+    fun provideCancelAlarmUseCase(
+        alarmClockMaker: AlarmClockMaker
+    ): CancelAlarmUseCase {
+        return CancelAlarmUseCase(alarmClockMaker = alarmClockMaker)
     }
 }

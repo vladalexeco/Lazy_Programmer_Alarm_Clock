@@ -36,7 +36,6 @@ import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import ru.vladalexeco.lazyprogrammer.R
-import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMakerImpl
 import ru.vladalexeco.lazyprogrammer.core.util.util_functions.generateUniqueId
 import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
 import ru.vladalexeco.lazyprogrammer.presentation.state.AlarmListScreenEvent
@@ -80,8 +79,6 @@ fun AlarmListScreen(
 
     var currentAlarmIndex: Int? by remember { mutableStateOf(null) }
     var indexOfCurrentBlock: Int? by remember { mutableStateOf(null) }
-
-    val alarmClockMaker = AlarmClockMakerImpl(context = LocalContext.current)
 
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
@@ -156,19 +153,17 @@ fun AlarmListScreen(
                         onDeleteClick = {
                             val currentAlarm = state.alarms[index]
 
-                            alarmClockMaker.cancelAlarm(currentAlarm)
-
                             onEvent.invoke(AlarmListScreenEvent.DeleteAlarmEvent(currentAlarm))
                         },
                         onSwitchClick = { isChecked ->
                             val newAlarm = state.alarms[index].copy(isActivated = isChecked)
 
-                            onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(newAlarm))
+                            onEvent.invoke(AlarmListScreenEvent.SaveAlarmToDatabaseWithoutCreatingAlarmActionEvent(newAlarm))
 
                             if (isChecked) {
-                                alarmClockMaker.createWeeklyAlarm(newAlarm)
+                                onEvent.invoke(AlarmListScreenEvent.RestoreAlarmEvent(newAlarm))
                             } else {
-                                alarmClockMaker.cancelAlarm(newAlarm)
+                                onEvent.invoke(AlarmListScreenEvent.PauseAlarmEvent(newAlarm))
                             }
                         },
                         onExtendChange = {
@@ -195,8 +190,6 @@ fun AlarmListScreen(
                             val newAlarm = currentAlarm.copy(weekdays = newWeekdays, isExtended = true)
 
                             onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(alarm = newAlarm))
-
-                            alarmClockMaker.createWeeklyAlarm(newAlarm)
                         }
                     )
                 }
@@ -255,16 +248,12 @@ fun AlarmListScreen(
                         )
 
                         onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(newAlarm))
-
-                        alarmClockMaker.createWeeklyAlarm(alarm = newAlarm)
                     } else {
                         val currentAlarm = state.alarms[currentAlarmIndex!!]
 
                         val modifiedAlarm = currentAlarm.copy(hour = defaultHourValue, minute = defaultMinuteValue)
 
                         onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(modifiedAlarm))
-
-                        alarmClockMaker.createWeeklyAlarm(alarm = modifiedAlarm)
                     }
 
                     isVisibleSetTimeDialogBox = !isVisibleSetTimeDialogBox

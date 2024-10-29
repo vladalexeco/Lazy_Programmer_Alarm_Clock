@@ -11,6 +11,8 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
+import ru.vladalexeco.lazyprogrammer.domain.usecase.CancelAlarmUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.CreateWeeklyAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.DeleteAlarmFromDatabaseUseSase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetAllAlarmsFromDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmToDatabaseUseCase
@@ -22,7 +24,9 @@ import javax.inject.Inject
 class AlarmListScreenViewModel @Inject constructor(
     val saveAlarmToDatabaseUseCase: SaveAlarmToDatabaseUseCase,
     val getAllAlarmsFromDatabaseUseCase: GetAllAlarmsFromDatabaseUseCase,
-    val deleteAlarmFromDatabaseUseSase: DeleteAlarmFromDatabaseUseSase
+    val deleteAlarmFromDatabaseUseSase: DeleteAlarmFromDatabaseUseSase,
+    val createWeeklyAlarmUseCase: CreateWeeklyAlarmUseCase,
+    val cancelAlarmUseCase: CancelAlarmUseCase
 ) : ViewModel() {
 
     init {
@@ -35,18 +39,39 @@ class AlarmListScreenViewModel @Inject constructor(
     fun onEvent(alarmListScreenEvent: AlarmListScreenEvent) {
 
         when (alarmListScreenEvent) {
+
             is AlarmListScreenEvent.SaveAlarmEvent -> {
                 viewModelScope.launch {
                     val saveJob = async { saveAlarmToDatabase(alarmListScreenEvent.alarm) }
                     saveJob.await()
                     getAlarmsFromDatabase()
                 }
+
+                createWeeklyAlarm(alarmListScreenEvent.alarm)
             }
 
             is AlarmListScreenEvent.DeleteAlarmEvent -> {
                 viewModelScope.launch {
                     val deleteJob = async { deleteAlarmFromDatabase(alarmListScreenEvent.alarm) }
                     deleteJob.await()
+                    getAlarmsFromDatabase()
+                }
+
+                cancelAlarm(alarmListScreenEvent.alarm)
+            }
+
+            is AlarmListScreenEvent.PauseAlarmEvent -> {
+                cancelAlarm(alarmListScreenEvent.alarm)
+            }
+
+            is AlarmListScreenEvent.RestoreAlarmEvent -> {
+                createWeeklyAlarm(alarmListScreenEvent.alarm)
+            }
+
+            is AlarmListScreenEvent.SaveAlarmToDatabaseWithoutCreatingAlarmActionEvent -> {
+                viewModelScope.launch {
+                    val saveJob = async { saveAlarmToDatabase(alarmListScreenEvent.alarm) }
+                    saveJob.await()
                     getAlarmsFromDatabase()
                 }
             }
@@ -85,5 +110,13 @@ class AlarmListScreenViewModel @Inject constructor(
 
     private suspend fun deleteAlarmFromDatabase(alarm: Alarm) {
         deleteAlarmFromDatabaseUseSase(alarm)
+    }
+
+    private fun createWeeklyAlarm(alarm: Alarm) {
+        createWeeklyAlarmUseCase.invoke(alarm = alarm)
+    }
+
+    private fun cancelAlarm(alarm: Alarm) {
+        cancelAlarmUseCase.invoke(alarm = alarm)
     }
 }
