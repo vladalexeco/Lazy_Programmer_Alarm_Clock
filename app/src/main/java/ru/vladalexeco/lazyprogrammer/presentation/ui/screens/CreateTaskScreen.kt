@@ -34,14 +34,13 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.RightAnswerColor
+import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.WrongAnswerColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.SimpleButton
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.DropdownList
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.RowOfAnswers
 
 @Composable
-fun CreateTaskScreen(
-    modifier: Modifier = Modifier
-) {
+fun CreateTaskScreen() {
     val languageList = supportedProgrammingLanguages
     val complexityValueList = List(COMPLEXITY_MAX) { (it + 1).toString() }
     val numberOfAnswersList = listOf("2", "3", "4", "5")
@@ -59,7 +58,7 @@ fun CreateTaskScreen(
     }
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(color = BackgroundColor)
             .verticalScroll(rememberScrollState())
@@ -222,7 +221,7 @@ fun CreateTaskScreen(
                 start = 16.dp,
                 end = 16.dp,
                 top = 32.dp,
-                bottom = 16.dp
+                bottom = 8.dp
             ),
             text = "Создать задание",
             backgroundColor = RightAnswerColor,
@@ -230,8 +229,21 @@ fun CreateTaskScreen(
             onClick = {}
         )
 
+        SimpleButton(
+            modifier = Modifier.fillMaxWidth().padding(
+                start = 16.dp,
+                end = 16.dp,
+                top = 8.dp,
+                bottom = 16.dp
+            ),
+            text = "Очистить все поля",
+            backgroundColor = AccentColor,
+            textColor = MainTextColor,
+            onClick = {}
+        )
+
         Spacer(
-            modifier = Modifier.padding(bottom = 84.dp)
+            modifier = Modifier.padding(bottom = 88.dp)
         )
     }
 }

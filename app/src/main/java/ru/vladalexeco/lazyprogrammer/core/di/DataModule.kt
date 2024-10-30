@@ -8,8 +8,10 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ru.vladalexeco.lazyprogrammer.data.api.AlarmStorageRepositoryImpl
+import ru.vladalexeco.lazyprogrammer.data.api.AlarmTaskStorageRepositoryImpl
 import ru.vladalexeco.lazyprogrammer.data.storage.AppDatabase
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmStorageRepository
+import ru.vladalexeco.lazyprogrammer.domain.api.AlarmTaskStorageRepository
 import javax.inject.Singleton
 
 @Module
@@ -30,5 +32,11 @@ class DataModule {
     @Singleton
     fun provideAlarmStorageRepository(appDatabase: AppDatabase) : AlarmStorageRepository {
         return AlarmStorageRepositoryImpl(appDatabase = appDatabase)
+    }
+
+    @Provides
+    @Singleton
+    fun provideAlarmTaskStorageRepository(appDatabase: AppDatabase): AlarmTaskStorageRepository {
+        return AlarmTaskStorageRepositoryImpl(appDatabase = appDatabase)
     }
 }

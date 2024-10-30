@@ -6,10 +6,13 @@ import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMaker
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmStorageRepository
+import ru.vladalexeco.lazyprogrammer.domain.api.AlarmTaskStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.usecase.CancelAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.CreateWeeklyAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.DeleteAlarmFromDatabaseUseSase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetAllAlarmsFromDatabaseUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.GetRandomAlarmTasksUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmTaskToDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmToDatabaseUseCase
 
 @Module
@@ -49,5 +52,19 @@ class DomainModule {
         alarmClockMaker: AlarmClockMaker
     ): CancelAlarmUseCase {
         return CancelAlarmUseCase(alarmClockMaker = alarmClockMaker)
+    }
+
+    @Provides
+    fun provideSaveAlarmTaskToDatabaseUseCase(
+        alarmTaskStorageRepository: AlarmTaskStorageRepository
+    ): SaveAlarmTaskToDatabaseUseCase {
+        return SaveAlarmTaskToDatabaseUseCase(alarmTaskStorageRepository = alarmTaskStorageRepository)
+    }
+
+    @Provides
+    fun provideGetRandomAlarmTasksUseCase(
+        alarmTaskStorageRepository: AlarmTaskStorageRepository
+    ): GetRandomAlarmTasksUseCase {
+        return GetRandomAlarmTasksUseCase(alarmTaskStorageRepository = alarmTaskStorageRepository)
     }
 }

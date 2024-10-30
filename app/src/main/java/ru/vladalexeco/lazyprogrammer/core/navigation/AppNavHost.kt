@@ -1,5 +1,7 @@
 package ru.vladalexeco.lazyprogrammer.core.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
@@ -11,6 +13,7 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.CreateTaskScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.SettingsScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.StatisticsScreen
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AppNavHost(
     navHostController: NavHostController,

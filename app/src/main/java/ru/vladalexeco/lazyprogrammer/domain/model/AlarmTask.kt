@@ -1,7 +1,7 @@
 package ru.vladalexeco.lazyprogrammer.domain.model
 
 data class AlarmTask(
-    val id: Int,
+    val id: String,
     val quest: String,
     val code: String,
     val choiceOptions: List<String>,
