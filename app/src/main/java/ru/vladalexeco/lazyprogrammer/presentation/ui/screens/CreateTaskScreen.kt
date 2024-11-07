@@ -19,9 +19,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
@@ -34,10 +36,11 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.RightAnswerColor
-import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.WrongAnswerColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.SimpleButton
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.DropdownList
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.RowOfAnswers
+
+
 
 @Composable
 fun CreateTaskScreen() {
@@ -51,10 +54,15 @@ fun CreateTaskScreen() {
     var answerOptions by remember { mutableStateOf(List(numberOfAnswers) { (it + 1).toString() }) }
     var answerOptionsCurrentValue by remember { mutableStateOf("") }
 
-    var answersArr: Array<String?> = arrayOfNulls(numberOfAnswers)
+    val answersList = remember {
+        mutableStateListOf<String>().apply { addAll(List(numberOfAnswers) { "" }) }
+    }
 
     LaunchedEffect(numberOfAnswers) {
         answerOptions = List(numberOfAnswers) { (it + 1).toString() }
+
+        answersList.clear()
+        answersList.addAll(List(numberOfAnswers) {""})
     }
 
     Column(
@@ -105,7 +113,9 @@ fun CreateTaskScreen() {
                 modifier = Modifier.align(Alignment.CenterEnd),
                 items = complexityValueList,
                 hint = "1 - 10",
-                onItemSelect = {}
+                onItemSelect = {
+
+                }
             )
         }
 
@@ -172,9 +182,11 @@ fun CreateTaskScreen() {
                 value = numberOfAnswers.toString(),
                 hint = "",
                 onItemSelect = { newNumberOfAnswers ->
-                    answersArr = arrayOfNulls(newNumberOfAnswers.toInt())
                     numberOfAnswers = newNumberOfAnswers.toInt()
                     answerOptionsCurrentValue = ""
+
+                    answersList.clear()
+                    answersList.addAll(List(numberOfAnswers) {""})
                 }
             )
         }
@@ -190,9 +202,9 @@ fun CreateTaskScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 16.dp),
-                numberOfAnswers = numberOfAnswers,
+                answers = answersList,
                 onValueChange = { index, value ->
-                    answersArr[index] = value
+                    answersList[index] = value
                 }
             )
         }

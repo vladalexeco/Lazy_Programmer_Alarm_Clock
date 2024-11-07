@@ -154,6 +154,8 @@ fun AlarmListScreen(
                             val currentAlarm = state.alarms[index]
 
                             onEvent.invoke(AlarmListScreenEvent.DeleteAlarmEvent(currentAlarm))
+
+                            indexOfCurrentBlock = null
                         },
                         onSwitchClick = { isChecked ->
                             val newAlarm = state.alarms[index].copy(isActivated = isChecked)
