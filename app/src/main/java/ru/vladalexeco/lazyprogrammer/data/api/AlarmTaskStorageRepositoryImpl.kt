@@ -9,6 +9,7 @@ import ru.vladalexeco.lazyprogrammer.domain.model.AlarmTask
 class AlarmTaskStorageRepositoryImpl(
     private val appDatabase: AppDatabase
 ) : AlarmTaskStorageRepository {
+
     override suspend fun saveAlarmTaskToDatabase(alarmTask: AlarmTask) {
         appDatabase.getAlarmTaskDao().insertAlarmTaskEntity(alarmTaskEntity = alarmTask.toAlarmTaskEntity())
     }

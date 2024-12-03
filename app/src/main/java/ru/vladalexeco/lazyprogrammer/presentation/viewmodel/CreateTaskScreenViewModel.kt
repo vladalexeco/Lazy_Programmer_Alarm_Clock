@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -27,7 +28,7 @@ class CreateTaskScreenViewModel @Inject constructor(
     val uiState: StateFlow<CreateTaskScreenState> = _uiState.asStateFlow()
 
     private val _sideEffect = MutableSharedFlow<CreateTaskScreenSideEffect>()
-    val sideEffect: SharedFlow<CreateTaskScreenSideEffect> = _sideEffect
+    val sideEffect: SharedFlow<CreateTaskScreenSideEffect> = _sideEffect.asSharedFlow()
 
     fun onEvent(createTaskScreenEvent: CreateTaskScreenEvent) {
 
@@ -127,24 +128,22 @@ class CreateTaskScreenViewModel @Inject constructor(
     }
 
     private fun saveAlarmTaskToDatabase(alarmTask: AlarmTask) {
-        if (
-            _uiState.value.language.isEmpty() ||
-            _uiState.value.complexity.isEmpty() ||
-            _uiState.value.taskQuestion.isEmpty() ||
-            _uiState.value.taskCode.isEmpty() ||
-            _uiState.value.answerOptionsCurrentValue.isEmpty() ||
-            _uiState.value.answersList.any { it.isEmpty() }
-        ) {
-            viewModelScope.launch(context = Dispatchers.Main) {
+
+        viewModelScope.launch(context = Dispatchers.Main) {
+            if (alarmTask.hasEmptyFields()) {
                 _sideEffect.emit(
                     CreateTaskScreenSideEffect.ShowMessage(
                         message = "Заполните все поля"
                     )
                 )
-            }
-        } else {
-            viewModelScope.launch {
+            } else {
                 saveAlarmTaskToDatabaseUseCase.invoke(alarmTask = alarmTask)
+
+                _sideEffect.emit(
+                    CreateTaskScreenSideEffect.ShowMessage(
+                        message = "Задание сохранено"
+                    )
+                )
             }
         }
     }

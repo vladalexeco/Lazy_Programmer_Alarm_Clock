@@ -1,5 +1,7 @@
 package ru.vladalexeco.lazyprogrammer.core.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
@@ -10,6 +12,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.bottom_navigation_bar.CustomBottomBar
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun AppNavScreen(
     navController: NavHostController,
@@ -32,6 +35,7 @@ fun AppNavScreen(
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 @Preview
 fun AppNavScreenPreview() {

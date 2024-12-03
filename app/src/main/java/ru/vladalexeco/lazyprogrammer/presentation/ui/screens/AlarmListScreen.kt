@@ -125,12 +125,7 @@ fun AlarmListScreen(
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(
-                        start = 16.dp,
-                        end = 16.dp,
-                        top = 16.dp,
-                        bottom = 84.dp
-                    ),
+                    .padding(start = 16.dp, end = 16.dp, top = 16.dp, bottom = 84.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 itemsIndexed(state.alarms) { index, alarm ->
@@ -160,7 +155,10 @@ fun AlarmListScreen(
                         onSwitchClick = { isChecked ->
                             val newAlarm = state.alarms[index].copy(isActivated = isChecked)
 
-                            onEvent.invoke(AlarmListScreenEvent.SaveAlarmToDatabaseWithoutCreatingAlarmActionEvent(newAlarm))
+                            onEvent.invoke(
+                                AlarmListScreenEvent
+                                    .SaveAlarmToDatabaseWithoutCreatingAlarmActionEvent(newAlarm)
+                            )
 
                             if (isChecked) {
                                 onEvent.invoke(AlarmListScreenEvent.RestoreAlarmEvent(newAlarm))
@@ -179,9 +177,14 @@ fun AlarmListScreen(
 
                             if (indexOfCurrentBlock != index && indexOfCurrentBlock != null) {
                                 val currentAlarmForClose = state.alarms[indexOfCurrentBlock!!]
-                                val newCurrentAlarmForClose = currentAlarmForClose.copy(isExtended = false)
+                                val newCurrentAlarmForClose = currentAlarmForClose.copy(
+                                    isExtended = false
+                                )
 
-                                onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(alarm = newCurrentAlarmForClose))
+                                onEvent.invoke(
+                                    AlarmListScreenEvent
+                                        .SaveAlarmEvent(alarm = newCurrentAlarmForClose)
+                                )
                             }
 
                             indexOfCurrentBlock = index
@@ -189,7 +192,10 @@ fun AlarmListScreen(
                         onWeekdaysChange = { letterMap ->
                             val currentAlarm = state.alarms[currentAlarmIndex!!]
                             val newWeekdays = letterMap.values.toList()
-                            val newAlarm = currentAlarm.copy(weekdays = newWeekdays, isExtended = true)
+                            val newAlarm = currentAlarm.copy(
+                                weekdays = newWeekdays,
+                                isExtended = true
+                            )
 
                             onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(alarm = newAlarm))
                         }
@@ -253,7 +259,10 @@ fun AlarmListScreen(
                     } else {
                         val currentAlarm = state.alarms[currentAlarmIndex!!]
 
-                        val modifiedAlarm = currentAlarm.copy(hour = defaultHourValue, minute = defaultMinuteValue)
+                        val modifiedAlarm = currentAlarm.copy(
+                            hour = defaultHourValue,
+                            minute = defaultMinuteValue
+                        )
 
                         onEvent.invoke(AlarmListScreenEvent.SaveAlarmEvent(modifiedAlarm))
                     }
