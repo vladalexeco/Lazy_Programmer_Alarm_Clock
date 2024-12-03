@@ -1,5 +1,6 @@
 package ru.vladalexeco.lazyprogrammer.presentation.ui.screens
 
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -17,19 +18,31 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import kotlinx.coroutines.flow.collect
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.COMPLEXITY_MAX
+import ru.vladalexeco.lazyprogrammer.core.util.app_constants.UNDEFINED_VALUE
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.supportedProgrammingLanguages
+import ru.vladalexeco.lazyprogrammer.core.util.util_functions.generateUniqueId
+import ru.vladalexeco.lazyprogrammer.domain.model.AlarmTask
+import ru.vladalexeco.lazyprogrammer.presentation.state.CreateTaskScreenEvent
+import ru.vladalexeco.lazyprogrammer.presentation.state.CreateTaskScreenSideEffect
+import ru.vladalexeco.lazyprogrammer.presentation.state.CreateTaskScreenState
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
@@ -37,29 +50,45 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.RightAnswerColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.SimpleButton
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.DropdownList
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.RowOfAnswers
+import ru.vladalexeco.lazyprogrammer.presentation.viewmodel.CreateTaskScreenViewModel
+
+@Composable
+fun CreateTaskScreen() {
+
+    val viewModel: CreateTaskScreenViewModel = hiltViewModel()
+    val state by viewModel.uiState.collectAsState()
+
+    val context = LocalContext.current
+
+    LaunchedEffect(Unit) {
+        viewModel.sideEffect.collect { sideEffect ->
+            when (sideEffect) {
+                is CreateTaskScreenSideEffect.ShowMessage -> {
+                    Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
+                }
+            }
+        }
+    }
+
+    CreateTaskScreen(
+        state = state,
+        onEvent = { createTaskScreenEvent ->
+            viewModel.onEvent(createTaskScreenEvent)
+        }
+    )
+}
 
 @Composable
 fun CreateTaskScreen(
-    modifier: Modifier = Modifier
+    state: CreateTaskScreenState,
+    onEvent: (CreateTaskScreenEvent) -> Unit
 ) {
     val languageList = supportedProgrammingLanguages
     val complexityValueList = List(COMPLEXITY_MAX) { (it + 1).toString() }
     val numberOfAnswersList = listOf("2", "3", "4", "5")
 
-    var numberOfAnswers by remember { mutableIntStateOf(4) }
-    var taskCode by remember { mutableStateOf("") }
-    var taskQuestion by remember { mutableStateOf("") }
-    var answerOptions by remember { mutableStateOf(List(numberOfAnswers) { (it + 1).toString() }) }
-    var answerOptionsCurrentValue by remember { mutableStateOf("") }
-
-    var answersArr: Array<String?> = arrayOfNulls(numberOfAnswers)
-
-    LaunchedEffect(numberOfAnswers) {
-        answerOptions = List(numberOfAnswers) { (it + 1).toString() }
-    }
-
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .background(color = BackgroundColor)
             .verticalScroll(rememberScrollState())
@@ -83,10 +112,11 @@ fun CreateTaskScreen(
 
             DropdownList(
                 modifier = Modifier.align(Alignment.CenterEnd),
+                value = state.language,
                 items = languageList,
                 hint = "kotlin",
                 onItemSelect = { languageValue ->
-
+                    onEvent.invoke(CreateTaskScreenEvent.SaveLanguageData(languageValue))
                 }
             )
         }
@@ -101,12 +131,15 @@ fun CreateTaskScreen(
                 text = "Сложность",
                 style = TextStyle(color = MainTextColor, fontSize = 20.sp)
             )
-            
+
             DropdownList(
                 modifier = Modifier.align(Alignment.CenterEnd),
+                value = state.complexity,
                 items = complexityValueList,
                 hint = "1 - 10",
-                onItemSelect = {}
+                onItemSelect = { newComplexityValue ->
+                    onEvent.invoke(CreateTaskScreenEvent.SaveComplexityData(newComplexityValue))
+                }
             )
         }
 
@@ -126,10 +159,10 @@ fun CreateTaskScreen(
                     color = AccentColor,
                     shape = RoundedCornerShape(6.dp)
                 ),
-            value = taskQuestion,
+            value = state.taskQuestion,
             textStyle = TextStyle(color = MainTextColor, fontSize = 16.sp),
-            onValueChange = { newValue ->
-                taskQuestion = newValue
+            onValueChange = { newTaskQuestionValue ->
+                onEvent.invoke(CreateTaskScreenEvent.SaveTaskQuestionData(newTaskQuestionValue))
             }
         )
 
@@ -149,17 +182,17 @@ fun CreateTaskScreen(
                     color = AccentColor,
                     shape = RoundedCornerShape(6.dp)
                 ),
-            value = taskCode,
+            value = state.taskCode,
             textStyle = TextStyle(color = MainTextColor, fontSize = 16.sp),
-            onValueChange = { newValue ->
-                taskCode = newValue
+            onValueChange = { newTaskCodeValue ->
+                onEvent.invoke(CreateTaskScreenEvent.SaveTaskCodeData(newTaskCodeValue))
             }
         )
 
         Box(
             modifier = Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp,)
+                .padding(horizontal = 16.dp)
         ) {
             Text(
                 modifier = Modifier.align(Alignment.CenterStart),
@@ -170,36 +203,43 @@ fun CreateTaskScreen(
             DropdownList(
                 modifier = Modifier.align(Alignment.CenterEnd),
                 items = numberOfAnswersList,
-                value = numberOfAnswers.toString(),
+                value = state.numberOfAnswers.toString(),
                 hint = "",
                 onItemSelect = { newNumberOfAnswers ->
-                    answersArr = arrayOfNulls(newNumberOfAnswers.toInt())
-                    numberOfAnswers = newNumberOfAnswers.toInt()
-                    answerOptionsCurrentValue = ""
+                    onEvent.invoke(
+                        CreateTaskScreenEvent.SaveNumberOfAnswersData(newNumberOfAnswers)
+                    )
                 }
             )
         }
 
-        if (numberOfAnswers != 0) {
-            Text(
-                modifier = Modifier.padding(start = 16.dp, top = 16.dp),
-                text = "Варианты ответов",
-                style = TextStyle(color = MainTextColor, fontSize = 20.sp)
-            )
 
-            RowOfAnswers(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp),
-                numberOfAnswers = numberOfAnswers,
-                onValueChange = { index, value ->
-                    answersArr[index] = value
-                }
-            )
-        }
+        Text(
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+            text = "Варианты ответов",
+            style = TextStyle(color = MainTextColor, fontSize = 20.sp)
+        )
+
+        RowOfAnswers(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            answers = state.answersList,
+            onValueChange = { index, value ->
+                val currentAnswersList = state.answersList.toMutableList()
+                currentAnswersList[index] = value
+
+                onEvent.invoke(
+                    CreateTaskScreenEvent.SaveNumberOfAnswersList(currentAnswersList.toList())
+                )
+            }
+        )
+
 
         Row(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp)
         ) {
             Text(
                 modifier = Modifier.weight(1f),
@@ -208,30 +248,63 @@ fun CreateTaskScreen(
             )
 
             DropdownList(
-                items = answerOptions,
-                value = answerOptionsCurrentValue,
+                items = state.answerOptions,
+                value = state.answerOptionsCurrentValue,
                 hint = "",
-                onItemSelect = { newValue ->
-                    answerOptionsCurrentValue = newValue
+                onItemSelect = { newAnswerOptionValue ->
+                    onEvent.invoke(
+                        CreateTaskScreenEvent.SaveAnswerOptionsCurrentValueData(
+                            newAnswerOptionValue
+                        )
+                    )
                 }
             )
         }
 
         SimpleButton(
-            modifier = Modifier.fillMaxWidth().padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 32.dp,
-                bottom = 16.dp
-            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 32.dp,
+                    bottom = 8.dp
+                ),
             text = "Создать задание",
             backgroundColor = RightAnswerColor,
             textColor = MainTextColor,
-            onClick = {}
+            onClick = {
+
+                val newAlarmTask = AlarmTask(
+                    id = generateUniqueId(),
+                    quest = state.taskQuestion,
+                    code = state.taskCode,
+                    choiceOptions = state.answersList,
+                    rightAnswer = if (state.answerOptionsCurrentValue.isEmpty()) UNDEFINED_VALUE else
+                        state.answerOptionsCurrentValue.toInt(),
+                    language = state.language,
+                    complexity = if (state.complexity.isEmpty()) UNDEFINED_VALUE else
+                        state.complexity.toInt()
+                )
+
+                onEvent.invoke(CreateTaskScreenEvent.SaveAlarmTaskToDatabase(newAlarmTask))
+            }
+        )
+
+        SimpleButton(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
+            text = "Очистить все поля",
+            backgroundColor = AccentColor,
+            textColor = MainTextColor,
+            onClick = {
+                onEvent.invoke(CreateTaskScreenEvent.ResetAllFieldsToTheirDefaultValues)
+            }
         )
 
         Spacer(
-            modifier = Modifier.padding(bottom = 84.dp)
+            modifier = Modifier.padding(bottom = 88.dp)
         )
     }
 }
@@ -239,5 +312,8 @@ fun CreateTaskScreen(
 @Composable
 @Preview(showBackground = true)
 fun CreateTaskScreenPreview() {
-    CreateTaskScreen()
+    CreateTaskScreen(
+        state = CreateTaskScreenState(),
+        onEvent = {}
+    )
 }
