@@ -20,10 +20,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,7 +30,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.debounce
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.COMPLEXITY_MAX
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.UNDEFINED_VALUE
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.supportedProgrammingLanguages
@@ -50,11 +49,15 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.Dr
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.create_task_screen.RowOfAnswers
 import ru.vladalexeco.lazyprogrammer.presentation.viewmodel.CreateTaskScreenViewModel
 
+@OptIn(FlowPreview::class)
 @Composable
 fun CreateTaskScreen() {
 
     val viewModel: CreateTaskScreenViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsState()
+
+    val stateQuestion by rememberUpdatedState(state.taskQuestion)
+    val stateCode by rememberUpdatedState(state.taskCode)
 
     val context = LocalContext.current
 
@@ -69,21 +72,19 @@ fun CreateTaskScreen() {
     }
 
     LaunchedEffect(Unit) {
-        while (true) {
-            delay(5000L)
+        snapshotFlow { stateQuestion }
+            .debounce(1500)
+            .collect { question ->
+                viewModel.onEvent(CreateTaskScreenEvent.SaveQuestionValueInDataStore(question))
+            }
+    }
 
-            viewModel.onEvent(
-                CreateTaskScreenEvent.SaveQuestionValueInDataStore(
-                    questionValue = state.taskQuestion
-                )
-            )
-
-            viewModel.onEvent(
-                CreateTaskScreenEvent.SaveCodeValueInDataStore(
-                    codeValue = state.taskCode
-                )
-            )
-        }
+    LaunchedEffect(Unit) {
+        snapshotFlow { stateCode }
+            .debounce(1500)
+            .collect { code ->
+                viewModel.onEvent(CreateTaskScreenEvent.SaveCodeValueInDataStore(code))
+            }
     }
 
     CreateTaskScreen(
@@ -103,16 +104,6 @@ fun CreateTaskScreen(
     val complexityValueList = List(COMPLEXITY_MAX) { (it + 1).toString() }
     val numberOfAnswersList = listOf("2", "3", "4", "5")
 
-    val stateTaskQuestion = state.taskQuestion
-    val stateTaskCode = state.taskCode
-
-    var rememberTaskQuestion by rememberSaveable  { mutableStateOf(stateTaskQuestion) }
-    var rememberTaskCode by rememberSaveable { mutableStateOf(stateTaskCode) }
-
-    LaunchedEffect(stateTaskQuestion, stateTaskCode) {
-        rememberTaskQuestion = stateTaskQuestion
-        rememberTaskCode = stateTaskCode
-    }
 
     Column(
         modifier = Modifier
@@ -186,11 +177,10 @@ fun CreateTaskScreen(
                     color = AccentColor,
                     shape = RoundedCornerShape(6.dp)
                 ),
-            value = rememberTaskQuestion,
+            value = state.taskQuestion,
             textStyle = TextStyle(color = MainTextColor, fontSize = 16.sp),
             onValueChange = { newTaskQuestionValue ->
                 onEvent.invoke(CreateTaskScreenEvent.SaveTaskQuestionData(newTaskQuestionValue))
-                rememberTaskQuestion = newTaskQuestionValue
             }
         )
 
@@ -210,11 +200,10 @@ fun CreateTaskScreen(
                     color = AccentColor,
                     shape = RoundedCornerShape(6.dp)
                 ),
-            value = rememberTaskCode,
+            value = state.taskCode,
             textStyle = TextStyle(color = MainTextColor, fontSize = 16.sp),
             onValueChange = { newTaskCodeValue ->
                 onEvent.invoke(CreateTaskScreenEvent.SaveTaskCodeData(newTaskCodeValue))
-                rememberTaskCode = newTaskCodeValue
             }
         )
 

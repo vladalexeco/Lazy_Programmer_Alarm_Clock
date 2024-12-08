@@ -162,26 +162,12 @@ class CreateTaskScreenViewModel @Inject constructor(
 
         viewModelScope.launch(Dispatchers.IO) {
             setValueToDataStoreWithKeyUseCase(key = TASK_CODE_KEY, value = codeValue)
-
-            _sideEffect.emit(
-                CreateTaskScreenSideEffect.ShowMessage(
-                    message = codeValue
-                )
-            )
         }
-
-
     }
 
     private fun saveQuestionValueInDataStore(questionValue: String) {
         viewModelScope.launch(Dispatchers.IO) {
             setValueToDataStoreWithKeyUseCase(key = TASK_QUESTION_KEY, value = questionValue)
-
-            _sideEffect.emit(
-                CreateTaskScreenSideEffect.ShowMessage(
-                    message = questionValue
-                )
-            )
         }
     }
 
