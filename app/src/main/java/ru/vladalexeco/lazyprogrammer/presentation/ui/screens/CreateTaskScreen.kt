@@ -20,7 +20,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberUpdatedState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -56,9 +58,6 @@ fun CreateTaskScreen() {
     val viewModel: CreateTaskScreenViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsState()
 
-    val stateQuestion by rememberUpdatedState(state.taskQuestion)
-    val stateCode by rememberUpdatedState(state.taskCode)
-
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
@@ -71,16 +70,16 @@ fun CreateTaskScreen() {
         }
     }
 
-    LaunchedEffect(Unit) {
-        snapshotFlow { stateQuestion }
+    LaunchedEffect(state.taskQuestion) {
+        snapshotFlow { state.taskQuestion }
             .debounce(1500)
             .collect { question ->
                 viewModel.onEvent(CreateTaskScreenEvent.SaveQuestionValueInDataStore(question))
             }
     }
 
-    LaunchedEffect(Unit) {
-        snapshotFlow { stateCode }
+    LaunchedEffect(state.taskCode) {
+        snapshotFlow { state.taskCode }
             .debounce(1500)
             .collect { code ->
                 viewModel.onEvent(CreateTaskScreenEvent.SaveCodeValueInDataStore(code))
