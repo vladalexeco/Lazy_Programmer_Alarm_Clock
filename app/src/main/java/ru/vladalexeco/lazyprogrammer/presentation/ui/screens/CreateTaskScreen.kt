@@ -20,9 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.rememberUpdatedState
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -74,7 +71,7 @@ fun CreateTaskScreen() {
         snapshotFlow { state.taskQuestion }
             .debounce(1500)
             .collect { question ->
-                viewModel.onEvent(CreateTaskScreenEvent.SaveQuestionValueInDataStore(question))
+                viewModel.onEvent(CreateTaskScreenEvent.SaveQuestionValueInSharedPreferences(question))
             }
     }
 
@@ -82,7 +79,7 @@ fun CreateTaskScreen() {
         snapshotFlow { state.taskCode }
             .debounce(1500)
             .collect { code ->
-                viewModel.onEvent(CreateTaskScreenEvent.SaveCodeValueInDataStore(code))
+                viewModel.onEvent(CreateTaskScreenEvent.SaveCodeValueInSharedPreferences(code))
             }
     }
 

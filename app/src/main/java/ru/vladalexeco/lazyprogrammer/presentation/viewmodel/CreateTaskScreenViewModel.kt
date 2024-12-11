@@ -1,6 +1,5 @@
 package ru.vladalexeco.lazyprogrammer.presentation.viewmodel
 
-import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -11,34 +10,23 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import ru.vladalexeco.lazyprogrammer.core.util.app_constants.ANSWER_LIST_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.ANSWER_LIST_SH_KEY
-import ru.vladalexeco.lazyprogrammer.core.util.app_constants.ANSWER_OPTIONS_CURRENT_VALUE_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.ANSWER_OPTIONS_CURRENT_VALUE_SH_KEY
-import ru.vladalexeco.lazyprogrammer.core.util.app_constants.COMPLEXITY_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.COMPLEXITY_SH_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.DEFAULT_NUMBER_OF_ANSWERS
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.EMPTY_STRING
-import ru.vladalexeco.lazyprogrammer.core.util.app_constants.LANGUAGE_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.LANGUAGE_SH_KEY
-import ru.vladalexeco.lazyprogrammer.core.util.app_constants.NUMBER_OF_ANSWERS_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.NUMBER_OF_ANSWERS_SH_KEY
-import ru.vladalexeco.lazyprogrammer.core.util.app_constants.TASK_CODE_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.TASK_CODE_SH_KEY
-import ru.vladalexeco.lazyprogrammer.core.util.app_constants.TASK_QUESTION_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.TASK_QUESTION_SH_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.util_functions.convertListToString
 import ru.vladalexeco.lazyprogrammer.core.util.util_functions.convertStringToList
 import ru.vladalexeco.lazyprogrammer.domain.model.AlarmTask
-import ru.vladalexeco.lazyprogrammer.domain.usecase.GetValueFromDataStoreByKeyUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetValueFromSharedPreferencesUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmTaskToDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveValueToSharedPreferencesUseCase
-import ru.vladalexeco.lazyprogrammer.domain.usecase.SetValueToDataStoreWithKeyUseCase
 import ru.vladalexeco.lazyprogrammer.presentation.state.CreateTaskScreenEvent
 import ru.vladalexeco.lazyprogrammer.presentation.state.CreateTaskScreenSideEffect
 import ru.vladalexeco.lazyprogrammer.presentation.state.CreateTaskScreenState
@@ -47,8 +35,6 @@ import javax.inject.Inject
 @HiltViewModel
 class CreateTaskScreenViewModel @Inject constructor(
     private val saveAlarmTaskToDatabaseUseCase: SaveAlarmTaskToDatabaseUseCase,
-    private val getValueFromDataStoreByKeyUseCase: GetValueFromDataStoreByKeyUseCase,
-    private val setValueToDataStoreWithKeyUseCase: SetValueToDataStoreWithKeyUseCase,
     private val getValueFromSharedPreferencesUseCase: GetValueFromSharedPreferencesUseCase,
     private val saveValueToSharedPreferencesUseCase: SaveValueToSharedPreferencesUseCase
 ) : ViewModel() {
@@ -127,26 +113,26 @@ class CreateTaskScreenViewModel @Inject constructor(
                 saveNumberOfAnswersDataOnScreenState(createTaskScreenEvent.numberOfAnswers)
             }
 
-            is CreateTaskScreenEvent.SaveQuestionValueInDataStore -> {
-                saveQuestionValueInDataStore(
+            is CreateTaskScreenEvent.SaveQuestionValueInSharedPreferences -> {
+                saveQuestionValueInSharedPreferences(
                     createTaskScreenEvent.questionValue
                 )
             }
 
-            is CreateTaskScreenEvent.SaveCodeValueInDataStore -> {
-                saveCodeValueInDataStore(
+            is CreateTaskScreenEvent.SaveCodeValueInSharedPreferences -> {
+                saveCodeValueInSharedPreferences(
                     createTaskScreenEvent.codeValue
                 )
             }
         }
     }
 
-    private fun saveCodeValueInDataStore(codeValue: String) {
+    private fun saveCodeValueInSharedPreferences(codeValue: String) {
 
         saveValueToSharedPreferencesUseCase(key = TASK_CODE_SH_KEY, value = codeValue)
     }
 
-    private fun saveQuestionValueInDataStore(questionValue: String) {
+    private fun saveQuestionValueInSharedPreferences(questionValue: String) {
 
         saveValueToSharedPreferencesUseCase(key = TASK_QUESTION_SH_KEY, value = questionValue)
     }
