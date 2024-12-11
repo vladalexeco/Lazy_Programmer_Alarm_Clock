@@ -7,13 +7,16 @@ import dagger.hilt.android.components.ViewModelComponent
 import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMaker
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmTaskStorageRepository
+import ru.vladalexeco.lazyprogrammer.domain.api.SharedPreferencesRepository
 import ru.vladalexeco.lazyprogrammer.domain.usecase.CancelAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.CreateWeeklyAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.DeleteAlarmFromDatabaseUseSase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetAllAlarmsFromDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetRandomAlarmTasksUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.GetValueFromSharedPreferencesUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmTaskToDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmToDatabaseUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveValueToSharedPreferencesUseCase
 
 @Module
 @InstallIn(ViewModelComponent::class)
@@ -66,5 +69,19 @@ class DomainModule {
         alarmTaskStorageRepository: AlarmTaskStorageRepository
     ): GetRandomAlarmTasksUseCase {
         return GetRandomAlarmTasksUseCase(alarmTaskStorageRepository = alarmTaskStorageRepository)
+    }
+
+    @Provides
+    fun provideSaveValueToSharedPreferencesUseCase(
+        sharedPreferencesRepository: SharedPreferencesRepository
+    ): SaveValueToSharedPreferencesUseCase {
+        return SaveValueToSharedPreferencesUseCase(sharedPreferencesRepository)
+    }
+
+    @Provides
+    fun provideGetValueFromSharedPreferencesUseCase(
+        sharedPreferencesRepository: SharedPreferencesRepository
+    ): GetValueFromSharedPreferencesUseCase {
+        return GetValueFromSharedPreferencesUseCase(sharedPreferencesRepository)
     }
 }

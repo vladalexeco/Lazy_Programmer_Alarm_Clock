@@ -12,4 +12,6 @@ sealed interface CreateTaskScreenEvent {
     data class SaveAnswerOptionsCurrentValueData(val answerOptionCurrentValue: String) : CreateTaskScreenEvent
     data class SaveAlarmTaskToDatabase(val alarmTask: AlarmTask) : CreateTaskScreenEvent
     data object ResetAllFieldsToTheirDefaultValues : CreateTaskScreenEvent
+    data class SaveQuestionValueInSharedPreferences(val questionValue: String) : CreateTaskScreenEvent
+    data class SaveCodeValueInSharedPreferences(val codeValue: String) : CreateTaskScreenEvent
 }
