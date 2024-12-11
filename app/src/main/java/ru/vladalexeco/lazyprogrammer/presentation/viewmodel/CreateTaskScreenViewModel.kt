@@ -16,19 +16,28 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.ANSWER_LIST_KEY
+import ru.vladalexeco.lazyprogrammer.core.util.app_constants.ANSWER_LIST_SH_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.ANSWER_OPTIONS_CURRENT_VALUE_KEY
+import ru.vladalexeco.lazyprogrammer.core.util.app_constants.ANSWER_OPTIONS_CURRENT_VALUE_SH_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.COMPLEXITY_KEY
+import ru.vladalexeco.lazyprogrammer.core.util.app_constants.COMPLEXITY_SH_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.DEFAULT_NUMBER_OF_ANSWERS
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.EMPTY_STRING
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.LANGUAGE_KEY
+import ru.vladalexeco.lazyprogrammer.core.util.app_constants.LANGUAGE_SH_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.NUMBER_OF_ANSWERS_KEY
+import ru.vladalexeco.lazyprogrammer.core.util.app_constants.NUMBER_OF_ANSWERS_SH_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.TASK_CODE_KEY
+import ru.vladalexeco.lazyprogrammer.core.util.app_constants.TASK_CODE_SH_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.TASK_QUESTION_KEY
+import ru.vladalexeco.lazyprogrammer.core.util.app_constants.TASK_QUESTION_SH_KEY
 import ru.vladalexeco.lazyprogrammer.core.util.util_functions.convertListToString
 import ru.vladalexeco.lazyprogrammer.core.util.util_functions.convertStringToList
 import ru.vladalexeco.lazyprogrammer.domain.model.AlarmTask
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetValueFromDataStoreByKeyUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.GetValueFromSharedPreferencesUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmTaskToDatabaseUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveValueToSharedPreferencesUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SetValueToDataStoreWithKeyUseCase
 import ru.vladalexeco.lazyprogrammer.presentation.state.CreateTaskScreenEvent
 import ru.vladalexeco.lazyprogrammer.presentation.state.CreateTaskScreenSideEffect
@@ -39,7 +48,9 @@ import javax.inject.Inject
 class CreateTaskScreenViewModel @Inject constructor(
     private val saveAlarmTaskToDatabaseUseCase: SaveAlarmTaskToDatabaseUseCase,
     private val getValueFromDataStoreByKeyUseCase: GetValueFromDataStoreByKeyUseCase,
-    private val setValueToDataStoreWithKeyUseCase: SetValueToDataStoreWithKeyUseCase
+    private val setValueToDataStoreWithKeyUseCase: SetValueToDataStoreWithKeyUseCase,
+    private val getValueFromSharedPreferencesUseCase: GetValueFromSharedPreferencesUseCase,
+    private val saveValueToSharedPreferencesUseCase: SaveValueToSharedPreferencesUseCase
 ) : ViewModel() {
 
     private val _uiState = MutableStateFlow(CreateTaskScreenState())
@@ -49,58 +60,30 @@ class CreateTaskScreenViewModel @Inject constructor(
     val sideEffect: SharedFlow<CreateTaskScreenSideEffect> = _sideEffect.asSharedFlow()
 
     init {
-        viewModelScope.launch(Dispatchers.IO) {
 
-            val combinedFirstFive = combine(
-                getValueFromDataStoreByKeyUseCase(LANGUAGE_KEY),
-                getValueFromDataStoreByKeyUseCase(COMPLEXITY_KEY),
-                getValueFromDataStoreByKeyUseCase(TASK_QUESTION_KEY),
-                getValueFromDataStoreByKeyUseCase(TASK_CODE_KEY),
-                getValueFromDataStoreByKeyUseCase(NUMBER_OF_ANSWERS_KEY),
-            ) { languageValue, complexityValue, taskQuestionValue, taskCodeValue,
-                numberOfAnswersValue ->
+        val languageValue = getValueFromSharedPreferencesUseCase(LANGUAGE_SH_KEY) ?: EMPTY_STRING
+        val complexityValue = getValueFromSharedPreferencesUseCase(COMPLEXITY_SH_KEY) ?: EMPTY_STRING
+        val taskQuestionValue = getValueFromSharedPreferencesUseCase(TASK_QUESTION_SH_KEY) ?: EMPTY_STRING
+        val taskCodeValue = getValueFromSharedPreferencesUseCase(TASK_CODE_SH_KEY) ?: EMPTY_STRING
+        val numberOfAnswersValue = getValueFromSharedPreferencesUseCase(NUMBER_OF_ANSWERS_SH_KEY) ?: DEFAULT_NUMBER_OF_ANSWERS
 
-                val numberOfAnswers = numberOfAnswersValue ?: DEFAULT_NUMBER_OF_ANSWERS
+        val answerList = getValueFromSharedPreferencesUseCase(ANSWER_LIST_SH_KEY)
+        val answerListValue = if (answerList != null) convertStringToList(answerList) else
+            List(numberOfAnswersValue.toInt()) { "" }
 
-                CreateTaskScreenState(
-                    language = languageValue ?: EMPTY_STRING,
-                    complexity = complexityValue ?: EMPTY_STRING,
-                    taskQuestion = taskQuestionValue ?: EMPTY_STRING,
-                    taskCode = taskCodeValue ?: EMPTY_STRING,
-                    numberOfAnswers = numberOfAnswers,
-                    answerOptions = List(numberOfAnswers) { (it + 1).toString() },
-                    answerOptionsCurrentValue = EMPTY_STRING,
-                    answersList = List(DEFAULT_NUMBER_OF_ANSWERS) { "" }
-                )
-            }
+        val answerOptionCurrentValue =  getValueFromSharedPreferencesUseCase(ANSWER_OPTIONS_CURRENT_VALUE_SH_KEY) ?: EMPTY_STRING
 
-            combine(
-                combinedFirstFive,
-                getValueFromDataStoreByKeyUseCase(ANSWER_LIST_KEY),
-                getValueFromDataStoreByKeyUseCase(ANSWER_OPTIONS_CURRENT_VALUE_KEY),
-            ) { combinedFirstFiveValue, answerListValue, answerOptionsCurrentValue ->
-
-                val answerList =
-                    if (answerListValue != null) convertStringToList(answerListValue) else
-                        List(combinedFirstFiveValue.numberOfAnswers) { "" }
-
-                val answerOptionsCurrent = answerOptionsCurrentValue ?: EMPTY_STRING
-
-                val newCreateTaskScreenState = combinedFirstFiveValue.copy(
-                    answersList = answerList,
-                    answerOptionsCurrentValue = answerOptionsCurrent
-                )
-
-                newCreateTaskScreenState
-
-            }.collect { newCreateTaskScreenState ->
-
-                withContext(Dispatchers.Main) {
-                    _uiState.update {
-                        newCreateTaskScreenState
-                    }
-                }
-            }
+        _uiState.update { createTaskScreenState ->
+            createTaskScreenState.copy(
+                language = languageValue,
+                complexity = complexityValue,
+                taskQuestion = taskQuestionValue,
+                taskCode = taskCodeValue,
+                numberOfAnswers = numberOfAnswersValue,
+                answerOptions = List(numberOfAnswersValue.toInt()) { (it + 1).toString() },
+                answersList = answerListValue,
+                answerOptionsCurrentValue = answerOptionCurrentValue
+            )
         }
     }
 
@@ -160,15 +143,12 @@ class CreateTaskScreenViewModel @Inject constructor(
 
     private fun saveCodeValueInDataStore(codeValue: String) {
 
-        viewModelScope.launch(Dispatchers.IO) {
-            setValueToDataStoreWithKeyUseCase(key = TASK_CODE_KEY, value = codeValue)
-        }
+        saveValueToSharedPreferencesUseCase(key = TASK_CODE_SH_KEY, value = codeValue)
     }
 
     private fun saveQuestionValueInDataStore(questionValue: String) {
-        viewModelScope.launch(Dispatchers.IO) {
-            setValueToDataStoreWithKeyUseCase(key = TASK_QUESTION_KEY, value = questionValue)
-        }
+
+        saveValueToSharedPreferencesUseCase(key = TASK_QUESTION_SH_KEY, value = questionValue)
     }
 
     private fun saveLanguageDataOnScreenState(newLanguageData: String) {
@@ -176,9 +156,7 @@ class CreateTaskScreenViewModel @Inject constructor(
             createTaskScreenState.copy(language = newLanguageData)
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            setValueToDataStoreWithKeyUseCase(key = LANGUAGE_KEY, value = newLanguageData)
-        }
+        saveValueToSharedPreferencesUseCase(key = LANGUAGE_SH_KEY, value = newLanguageData)
     }
 
     private fun saveComplexityDataOnScreenState(newComplexityData: String) {
@@ -186,9 +164,7 @@ class CreateTaskScreenViewModel @Inject constructor(
             createTaskScreenState.copy(complexity = newComplexityData)
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            setValueToDataStoreWithKeyUseCase(key = COMPLEXITY_KEY, value = newComplexityData)
-        }
+        saveValueToSharedPreferencesUseCase(key = COMPLEXITY_SH_KEY, value = newComplexityData)
     }
 
     private fun saveTaskQuestionDataOnScreenState(newTaskQuestionData: String) {
@@ -206,26 +182,25 @@ class CreateTaskScreenViewModel @Inject constructor(
     private fun saveNumberOfAnswersDataOnScreenState(newNumberOfAnswers: String) {
         _uiState.update { createTaskScreenState ->
             createTaskScreenState.copy(
-                numberOfAnswers = newNumberOfAnswers.toInt(),
+                numberOfAnswers = newNumberOfAnswers,
                 answerOptions = List(newNumberOfAnswers.toInt()) { (it + 1).toString() },
                 answersList = List(newNumberOfAnswers.toInt()) { "" },
                 answerOptionsCurrentValue = ""
             )
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            setValueToDataStoreWithKeyUseCase(
-                key = NUMBER_OF_ANSWERS_KEY,
-                value = newNumberOfAnswers.toInt()
-            )
+        saveValueToSharedPreferencesUseCase(key = NUMBER_OF_ANSWERS_SH_KEY, value = newNumberOfAnswers)
 
-            setValueToDataStoreWithKeyUseCase(
-                key = ANSWER_LIST_KEY,
-                value = convertListToString(list = List(newNumberOfAnswers.toInt()) { "" })
-            )
+        saveValueToSharedPreferencesUseCase(
+            key = ANSWER_LIST_SH_KEY,
+            value = convertListToString(list = List(newNumberOfAnswers.toInt()) { "" })
+        )
 
-            setValueToDataStoreWithKeyUseCase(key = ANSWER_OPTIONS_CURRENT_VALUE_KEY, value = "")
-        }
+        saveValueToSharedPreferencesUseCase(
+            key = ANSWER_OPTIONS_CURRENT_VALUE_SH_KEY,
+            value = ""
+        )
+
     }
 
     private fun saveNumberOfAnswersList(newAnswersList: List<String>) {
@@ -235,12 +210,10 @@ class CreateTaskScreenViewModel @Inject constructor(
             )
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            setValueToDataStoreWithKeyUseCase(
-                key = ANSWER_LIST_KEY,
-                value = convertListToString(newAnswersList)
-            )
-        }
+        saveValueToSharedPreferencesUseCase(
+            key = ANSWER_LIST_SH_KEY,
+            value = convertListToString(newAnswersList)
+        )
     }
 
     private fun saveAnswerOptionsCurrentDataValue(newAnswerOptionValue: String) {
@@ -250,47 +223,31 @@ class CreateTaskScreenViewModel @Inject constructor(
             )
         }
 
-        viewModelScope.launch(Dispatchers.IO) {
-            setValueToDataStoreWithKeyUseCase(
-                key = ANSWER_OPTIONS_CURRENT_VALUE_KEY,
-                value = newAnswerOptionValue
-            )
-        }
+        saveValueToSharedPreferencesUseCase(
+            key = ANSWER_OPTIONS_CURRENT_VALUE_SH_KEY,
+            value = newAnswerOptionValue
+        )
     }
 
     private fun resetAllFieldsToTheirDefaultValues() {
         _uiState.value = CreateTaskScreenState()
 
-        viewModelScope.launch(Dispatchers.IO) {
+        saveValueToSharedPreferencesUseCase(key = LANGUAGE_SH_KEY, value = EMPTY_STRING)
+        saveValueToSharedPreferencesUseCase(key = COMPLEXITY_SH_KEY, value = EMPTY_STRING)
+        saveValueToSharedPreferencesUseCase(key = TASK_QUESTION_SH_KEY, value = EMPTY_STRING)
+        saveValueToSharedPreferencesUseCase(key = TASK_CODE_SH_KEY, value = EMPTY_STRING)
 
-            viewModelScope.launch(Dispatchers.IO) {
-                setValueToDataStoreWithKeyUseCase(key = LANGUAGE_KEY, value = EMPTY_STRING)
-            }
+        saveValueToSharedPreferencesUseCase(
+            key = NUMBER_OF_ANSWERS_SH_KEY,
+            value = DEFAULT_NUMBER_OF_ANSWERS
+        )
 
-            viewModelScope.launch(Dispatchers.IO) {
-                setValueToDataStoreWithKeyUseCase(key = COMPLEXITY_KEY, value = EMPTY_STRING)
-            }
+        saveValueToSharedPreferencesUseCase(
+            key = ANSWER_LIST_SH_KEY,
+            value = convertListToString(list = List(DEFAULT_NUMBER_OF_ANSWERS.toInt()) { "" })
+        )
 
-            viewModelScope.launch(Dispatchers.IO) {
-                setValueToDataStoreWithKeyUseCase(key = TASK_QUESTION_KEY, value = EMPTY_STRING)
-            }
-
-            viewModelScope.launch(Dispatchers.IO) {
-                setValueToDataStoreWithKeyUseCase(key = TASK_CODE_KEY, value = EMPTY_STRING)
-            }
-
-            setValueToDataStoreWithKeyUseCase(
-                key = NUMBER_OF_ANSWERS_KEY,
-                value = DEFAULT_NUMBER_OF_ANSWERS
-            )
-
-            setValueToDataStoreWithKeyUseCase(
-                key = ANSWER_LIST_KEY,
-                value = convertListToString(list = List(DEFAULT_NUMBER_OF_ANSWERS) { "" })
-            )
-
-            setValueToDataStoreWithKeyUseCase(key = ANSWER_OPTIONS_CURRENT_VALUE_KEY, value = "")
-        }
+        saveValueToSharedPreferencesUseCase(key = ANSWER_OPTIONS_CURRENT_VALUE_SH_KEY, value = "")
     }
 
     private fun saveAlarmTaskToDatabase(alarmTask: AlarmTask) {

@@ -1,6 +1,7 @@
 package ru.vladalexeco.lazyprogrammer.core.di
 
 import android.content.Context
+import android.content.SharedPreferences
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.preferencesDataStore
@@ -13,10 +14,12 @@ import dagger.hilt.components.SingletonComponent
 import ru.vladalexeco.lazyprogrammer.data.api.AlarmStorageRepositoryImpl
 import ru.vladalexeco.lazyprogrammer.data.api.AlarmTaskStorageRepositoryImpl
 import ru.vladalexeco.lazyprogrammer.data.api.DataStorePreferencesRepositoryImpl
+import ru.vladalexeco.lazyprogrammer.data.api.SharedPreferencesRepositoryImpl
 import ru.vladalexeco.lazyprogrammer.data.storage.AppDatabase
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmTaskStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.api.DataStorePreferencesRepository
+import ru.vladalexeco.lazyprogrammer.domain.api.SharedPreferencesRepository
 import javax.inject.Singleton
 
 @Module
@@ -58,5 +61,20 @@ class DataModule {
     @Singleton
     fun provideDataStorePreferencesRepository( dataStore: DataStore<Preferences>): DataStorePreferencesRepository {
         return DataStorePreferencesRepositoryImpl(dataStore = dataStore)
+    }
+
+    // Shared Preferences
+    @Provides
+    @Singleton
+    fun provideSharedPreferences(@ApplicationContext context: Context): SharedPreferences {
+        val sharedPreferences = context.getSharedPreferences("shared_settings", Context.MODE_PRIVATE)
+        return sharedPreferences
+    }
+
+    @Provides
+    @Singleton
+    fun provideSharedPreferencesRepository(sharedPreferences: SharedPreferences)
+    : SharedPreferencesRepository {
+        return SharedPreferencesRepositoryImpl(sharedPreferences = sharedPreferences)
     }
 }

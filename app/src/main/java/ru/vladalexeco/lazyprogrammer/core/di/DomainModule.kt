@@ -8,14 +8,17 @@ import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMaker
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmTaskStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.api.DataStorePreferencesRepository
+import ru.vladalexeco.lazyprogrammer.domain.api.SharedPreferencesRepository
 import ru.vladalexeco.lazyprogrammer.domain.usecase.CancelAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.CreateWeeklyAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.DeleteAlarmFromDatabaseUseSase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetAllAlarmsFromDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetRandomAlarmTasksUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetValueFromDataStoreByKeyUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.GetValueFromSharedPreferencesUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmTaskToDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmToDatabaseUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveValueToSharedPreferencesUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SetValueToDataStoreWithKeyUseCase
 
 @Module
@@ -83,5 +86,19 @@ class DomainModule {
         dataStorePreferencesRepository: DataStorePreferencesRepository
     ): SetValueToDataStoreWithKeyUseCase {
         return SetValueToDataStoreWithKeyUseCase(dataStorePreferencesRepository = dataStorePreferencesRepository)
+    }
+
+    @Provides
+    fun provideSaveValueToSharedPreferencesUseCase(
+        sharedPreferencesRepository: SharedPreferencesRepository
+    ): SaveValueToSharedPreferencesUseCase {
+        return SaveValueToSharedPreferencesUseCase(sharedPreferencesRepository)
+    }
+
+    @Provides
+    fun provideGetValueFromSharedPreferencesUseCase(
+        sharedPreferencesRepository: SharedPreferencesRepository
+    ): GetValueFromSharedPreferencesUseCase {
+        return GetValueFromSharedPreferencesUseCase(sharedPreferencesRepository)
     }
 }
