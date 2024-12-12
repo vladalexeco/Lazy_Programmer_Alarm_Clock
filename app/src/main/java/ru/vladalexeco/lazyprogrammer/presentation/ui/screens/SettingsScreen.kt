@@ -9,6 +9,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateMapOf
@@ -21,27 +22,38 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.ViewModel
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.supportedProgrammingLanguages
+import ru.vladalexeco.lazyprogrammer.presentation.state.SettingsScreenEvent
+import ru.vladalexeco.lazyprogrammer.presentation.state.SettingsScreenState
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.settings_screen.CheckBoxColumn
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.settings_screen.EstimateRangeSlider
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.settings_screen.EstimateSlider
+import ru.vladalexeco.lazyprogrammer.presentation.viewmodel.SettingsScreenViewModel
+
+@Composable
+fun SettingsScreen() {
+
+    val viewModel: SettingsScreenViewModel = hiltViewModel()
+    val state by viewModel.uiState.collectAsState()
+
+    SettingsScreen(
+        state = state,
+        onEvent = { settingsScreenEvent ->
+            viewModel.onEvent(settingsScreenEvent)
+        }
+    )
+}
 
 @Composable
 fun SettingsScreen(
-    modifier: Modifier = Modifier
+    state: SettingsScreenState,
+    onEvent: (SettingsScreenEvent) -> Unit
 ) {
-    val languageList = supportedProgrammingLanguages
-    val initialValues: MutableMap<String, Boolean> = remember { mutableStateMapOf() }
-
-    languageList.forEach { item -> initialValues[item] = false }
-
-    var complexityStart by remember { mutableIntStateOf(1) }
-    var complexityEnd by remember { mutableIntStateOf(5) }
-
-    var numberOfTasks by remember { mutableIntStateOf(3) }
 
     Column(
         modifier = Modifier
@@ -63,10 +75,13 @@ fun SettingsScreen(
 
         CheckBoxColumn(
             modifier = Modifier.fillMaxWidth(),
-            listOfLabels = languageList,
-            initialValues = initialValues,
+            listOfLabels = supportedProgrammingLanguages,
+            initialValues = state.languageMap,
             onCheckBoxClick = { key, isChecked ->
-                initialValues[key] = isChecked
+                onEvent.invoke(SettingsScreenEvent.ChangeValueOnLanguageMap(
+                    key = key,
+                    value = isChecked
+                ))
             }
         )
 
@@ -78,20 +93,19 @@ fun SettingsScreen(
 
         EstimateRangeSlider(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            initialStart = complexityStart,
-            initialEnd = complexityEnd,
+            initialStart = state.complexityStart.toInt(),
+            initialEnd = state.complexityEnd.toInt(),
             onRangeChanged = { startValue, endValue ->
-                complexityStart = startValue
-                complexityEnd = endValue
-            },
-            onRangeChangeFinish = { startValue, endValue ->
-
+                onEvent(SettingsScreenEvent.ChangeComplexityValueRange(
+                    start = startValue,
+                    end = endValue
+                ))
             }
         )
 
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            text = "Сложность заданий от $complexityStart до $complexityEnd баллов",
+            text = "Сложность заданий от ${state.complexityStart} до ${state.complexityEnd} баллов",
             style = TextStyle(color = MainTextColor, fontSize = 16.sp)
         )
 
@@ -103,18 +117,15 @@ fun SettingsScreen(
 
         EstimateSlider(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            start = numberOfTasks,
+            start = state.numberOfTasks.toInt(),
             onValueChange = { newValue ->
-                numberOfTasks = newValue
-            },
-            onValueChangeFinish = { newValue ->
-
+                onEvent(SettingsScreenEvent.ChangeNumberOfTasksValue(value = newValue))
             }
         )
 
         Text(
             modifier = Modifier.align(Alignment.CenterHorizontally),
-            text = "Количество заданий за одну сессию - $numberOfTasks",
+            text = "Количество заданий за одну сессию - ${state.numberOfTasks}",
             style = TextStyle(color = MainTextColor, fontSize = 16.sp)
         )
     }
@@ -123,5 +134,8 @@ fun SettingsScreen(
 @Composable
 @Preview(showBackground = true)
 fun SettingsScreenPreview() {
-    SettingsScreen()
+    SettingsScreen(
+        state = SettingsScreenState(),
+        onEvent = {}
+    )
 }
