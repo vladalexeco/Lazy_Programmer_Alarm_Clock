@@ -28,7 +28,6 @@ fun EstimateRangeSlider(
     initialStart: Int,
     initialEnd: Int,
     onRangeChanged: (Int, Int) -> Unit,
-    onRangeChangeFinish: (Int, Int) -> Unit
 ) {
     val start = initialStart.toFloat()
     val end = initialEnd.toFloat()
@@ -52,12 +51,6 @@ fun EstimateRangeSlider(
             )
         },
         valueRange = 1f..10f,
-        onValueChangeFinished = {
-            onRangeChangeFinish.invoke(
-                sliderPosition.start.toInt(),
-                sliderPosition.endInclusive.toInt()
-            )
-        },
     )
 }
 
@@ -79,9 +72,6 @@ fun EstimateRangeSliderPreview() {
             onRangeChanged = { rangeStart, rangeEnd ->
                 start = rangeStart
                 end = rangeEnd
-            },
-            onRangeChangeFinish = { rangeStart, rangeEnd ->
-
             }
         )
 
@@ -97,7 +87,6 @@ fun EstimateSlider(
     modifier: Modifier = Modifier,
     start: Int,
     onValueChange: (Int) -> Unit,
-    onValueChangeFinish: (Int) -> Unit
 ) {
     val startValue = start.toFloat()
 
@@ -109,9 +98,6 @@ fun EstimateSlider(
         onValueChange = {
             sliderPosition = it
             onValueChange.invoke(sliderPosition.toInt())
-        },
-        onValueChangeFinished = {
-            onValueChangeFinish.invoke(sliderPosition.toInt())
         },
         colors = SliderDefaults.colors(
             thumbColor = AccentColor,
@@ -138,9 +124,6 @@ fun EstimateSliderPreview() {
             start = startValue,
             onValueChange = { newValue ->
                 startValue = newValue
-            },
-            onValueChangeFinish = { newValue ->
-
             }
         )
 
