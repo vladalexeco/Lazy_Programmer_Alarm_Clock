@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.USER_ID
 import ru.vladalexeco.lazyprogrammer.core.util.app_constants.supportedProgrammingLanguages
+import ru.vladalexeco.lazyprogrammer.core.util.util_functions.generateUniqueId
 import ru.vladalexeco.lazyprogrammer.domain.model.Alarm
 import ru.vladalexeco.lazyprogrammer.domain.model.LanguageResult
 import ru.vladalexeco.lazyprogrammer.domain.model.UserStatistics
@@ -158,7 +159,10 @@ class AlarmListScreenViewModel @Inject constructor(
     ) {
         supportedLanguageResults.forEach { languageName ->
             saveLanguageResultToDatabaseUseCase(
-                LanguageResult(name = languageName)
+                LanguageResult(
+                    id = generateUniqueId(),
+                    name = languageName
+                )
             )
         }
     }
