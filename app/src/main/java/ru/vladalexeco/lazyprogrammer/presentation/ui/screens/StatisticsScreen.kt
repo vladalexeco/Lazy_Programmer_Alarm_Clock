@@ -10,50 +10,37 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import ru.vladalexeco.lazyprogrammer.R
+import androidx.hilt.navigation.compose.hiltViewModel
+import ru.vladalexeco.lazyprogrammer.presentation.state.StatisticsScreenState
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.WrongAnswerColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.statistics_screen.DataColumn
+import ru.vladalexeco.lazyprogrammer.presentation.viewmodel.StatisticsScreenViewModel
+
+@Composable
+fun StatisticsScreen() {
+
+    val viewModel: StatisticsScreenViewModel = hiltViewModel()
+    val state by viewModel.uiState.collectAsState()
+
+    StatisticsScreen(state = state)
+}
+
 
 @Composable
 fun StatisticsScreen(
-    modifier: Modifier = Modifier
+    state: StatisticsScreenState
 ) {
-    val dataMap: Map<String, Int> = linkedMapOf(
-        "kotlin" to 7,
-        "java" to 11,
-        "python" to 9
-    )
-
-    val currentUserStatus = 1
-
-    val statusMap: Map<Int, String> = mapOf(
-        1 to "Новичек",
-        2 to "Любитель",
-        3 to "Опытный",
-        4 to "Мастер",
-        5 to "Профессионал"
-    )
-
-    val emojiMap: Map<Int, Int> = mapOf(
-        1 to R.drawable.newcomer,
-        2 to R.drawable.fan,
-        3 to R.drawable.skilled,
-        4 to R.drawable.master,
-        5 to R.drawable.professional
-    )
-
-    val currentEmoji: Int = emojiMap[currentUserStatus] ?: R.drawable.newcomer
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -80,7 +67,7 @@ fun StatisticsScreen(
             )
 
             Text(
-                text = "20",
+                text = state.numberOfSessions.toString(),
                 style = TextStyle(color = MainTextColor, fontSize = 20.sp)
             )
         }
@@ -95,7 +82,7 @@ fun StatisticsScreen(
             )
 
             Text(
-                text = "56",
+                text = state.numberOfTasks.toString(),
                 style = TextStyle(color = MainTextColor, fontSize = 20.sp)
             )
         }
@@ -107,7 +94,7 @@ fun StatisticsScreen(
         )
 
         DataColumn(
-            dataMap = dataMap
+            dataMap = state.languageResults
         )
 
         Row(
@@ -124,7 +111,7 @@ fun StatisticsScreen(
             )
 
             Text(
-                text = "17",
+                text = state.numberOfMistakes.toString(),
                 style = TextStyle(color = WrongAnswerColor, fontSize = 20.sp)
             )
         }
@@ -141,7 +128,7 @@ fun StatisticsScreen(
             modifier = Modifier
                 .padding(top = 16.dp)
                 .align(Alignment.CenterHorizontally),
-            text = statusMap[currentUserStatus] ?: "Неизвестный статус",
+            text = state.status,
             style = TextStyle(color = AccentColor, fontSize = 24.sp)
         )
 
@@ -150,7 +137,7 @@ fun StatisticsScreen(
                 .padding(top = 16.dp)
                 .size(72.dp)
                 .align(Alignment.CenterHorizontally),
-            painter = painterResource(currentEmoji),
+            painter = state.emojiStatus.painter(),
             contentDescription = null
         )
     }
@@ -159,5 +146,5 @@ fun StatisticsScreen(
 @Composable
 @Preview(showBackground = true, backgroundColor = 0xFF1D181C)
 fun StatisticsScreenPreview() {
-    StatisticsScreen()
+    StatisticsScreen(state = StatisticsScreenState())
 }
