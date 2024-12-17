@@ -26,6 +26,7 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.Sim
 
 @Composable
 fun ConfirmDialogBox(
+    modifier: Modifier = Modifier,
     width: Dp = 240.dp,
     height: Dp = 180.dp,
     backgroundColor: Color = DialogBoxColor,

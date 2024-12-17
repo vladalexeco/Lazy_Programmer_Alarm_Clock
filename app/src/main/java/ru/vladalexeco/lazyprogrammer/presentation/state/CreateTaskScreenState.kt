@@ -11,5 +11,6 @@ data class CreateTaskScreenState(
     val numberOfAnswers: String = DEFAULT_NUMBER_OF_ANSWERS,
     val answerOptions: List<String> = List(DEFAULT_NUMBER_OF_ANSWERS.toInt()) { (it + 1).toString() },
     val answerOptionsCurrentValue: String = EMPTY_STRING,
-    val answersList: List<String> = List(DEFAULT_NUMBER_OF_ANSWERS.toInt()) { "" }
+    val answersList: List<String> = List(DEFAULT_NUMBER_OF_ANSWERS.toInt()) { "" },
+    val confirmDialogIsVisible: Boolean = false
 )

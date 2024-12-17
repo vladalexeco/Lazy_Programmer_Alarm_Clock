@@ -124,6 +124,18 @@ class CreateTaskScreenViewModel @Inject constructor(
                     createTaskScreenEvent.codeValue
                 )
             }
+
+            is CreateTaskScreenEvent.MakeVisibleDialogBox -> {
+                makeVisibleDialogBox(createTaskScreenEvent.isVisible)
+            }
+        }
+    }
+
+    private fun makeVisibleDialogBox(isVisible: Boolean) {
+        _uiState.update { createTaskScreenState ->
+            createTaskScreenState.copy(
+                confirmDialogIsVisible = isVisible
+            )
         }
     }
 
