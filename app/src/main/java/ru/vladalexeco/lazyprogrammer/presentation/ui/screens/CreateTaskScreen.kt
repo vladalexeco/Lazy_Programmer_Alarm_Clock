@@ -100,227 +100,239 @@ fun CreateTaskScreen(
     val complexityValueList = List(COMPLEXITY_MAX) { (it + 1).toString() }
     val numberOfAnswersList = listOf("2", "3", "4", "5")
 
-
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = BackgroundColor)
-            .verticalScroll(rememberScrollState())
+            .background(color = BackgroundColor),
+        contentAlignment = Alignment.Center
     ) {
+
         Text(
-            modifier = Modifier.padding(start = 16.dp, top = 32.dp),
-            text = "Новое задание",
+            text = "Dialog screen",
             style = TextStyle(color = MainTextColor, fontSize = 24.sp)
         )
 
-        Box(
+        Column(
             modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
         ) {
             Text(
-                modifier = Modifier.align(Alignment.CenterStart),
-                text = "Язык",
-                style = TextStyle(color = MainTextColor, fontSize = 20.sp)
+                modifier = Modifier.padding(start = 16.dp, top = 32.dp),
+                text = "Новое задание",
+                style = TextStyle(color = MainTextColor, fontSize = 24.sp)
             )
 
-            DropdownList(
-                modifier = Modifier.align(Alignment.CenterEnd),
-                value = state.language,
-                items = languageList,
-                hint = "kotlin",
-                onItemSelect = { languageValue ->
-                    onEvent.invoke(CreateTaskScreenEvent.SaveLanguageData(languageValue))
-                }
-            )
-        }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    modifier = Modifier.align(Alignment.CenterStart),
+                    text = "Язык",
+                    style = TextStyle(color = MainTextColor, fontSize = 20.sp)
+                )
 
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp)
-        ) {
-            Text(
-                modifier = Modifier.align(Alignment.CenterStart),
-                text = "Сложность",
-                style = TextStyle(color = MainTextColor, fontSize = 20.sp)
-            )
-
-            DropdownList(
-                modifier = Modifier.align(Alignment.CenterEnd),
-                value = state.complexity,
-                items = complexityValueList,
-                hint = "1 - 10",
-                onItemSelect = { newComplexityValue ->
-                    onEvent.invoke(CreateTaskScreenEvent.SaveComplexityData(newComplexityValue))
-                }
-            )
-        }
-
-        Text(
-            modifier = Modifier.padding(start = 16.dp, top = 8.dp),
-            text = "Вопрос задания",
-            style = TextStyle(color = MainTextColor, fontSize = 20.sp)
-        )
-
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-                .height(140.dp)
-                .border(
-                    width = 1.dp,
-                    color = AccentColor,
-                    shape = RoundedCornerShape(6.dp)
-                ),
-            value = state.taskQuestion,
-            textStyle = TextStyle(color = MainTextColor, fontSize = 16.sp),
-            onValueChange = { newTaskQuestionValue ->
-                onEvent.invoke(CreateTaskScreenEvent.SaveTaskQuestionData(newTaskQuestionValue))
-            }
-        )
-
-        Text(
-            modifier = Modifier.padding(start = 16.dp, top = 8.dp),
-            text = "Окно ввода задания",
-            style = TextStyle(color = MainTextColor, fontSize = 20.sp)
-        )
-
-        OutlinedTextField(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-                .height(320.dp)
-                .border(
-                    width = 1.dp,
-                    color = AccentColor,
-                    shape = RoundedCornerShape(6.dp)
-                ),
-            value = state.taskCode,
-            textStyle = TextStyle(color = MainTextColor, fontSize = 16.sp),
-            onValueChange = { newTaskCodeValue ->
-                onEvent.invoke(CreateTaskScreenEvent.SaveTaskCodeData(newTaskCodeValue))
-            }
-        )
-
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-        ) {
-            Text(
-                modifier = Modifier.align(Alignment.CenterStart),
-                text = "Количество ответов",
-                style = TextStyle(color = MainTextColor, fontSize = 20.sp)
-            )
-
-            DropdownList(
-                modifier = Modifier.align(Alignment.CenterEnd),
-                items = numberOfAnswersList,
-                value = state.numberOfAnswers.toString(),
-                hint = "",
-                onItemSelect = { newNumberOfAnswers ->
-                    onEvent.invoke(
-                        CreateTaskScreenEvent.SaveNumberOfAnswersData(newNumberOfAnswers)
-                    )
-                }
-            )
-        }
-
-
-        Text(
-            modifier = Modifier.padding(start = 16.dp, top = 16.dp),
-            text = "Варианты ответов",
-            style = TextStyle(color = MainTextColor, fontSize = 20.sp)
-        )
-
-        RowOfAnswers(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
-            answers = state.answersList,
-            onValueChange = { index, value ->
-                val currentAnswersList = state.answersList.toMutableList()
-                currentAnswersList[index] = value
-
-                onEvent.invoke(
-                    CreateTaskScreenEvent.SaveNumberOfAnswersList(currentAnswersList.toList())
+                DropdownList(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    value = state.language,
+                    items = languageList,
+                    hint = "kotlin",
+                    onItemSelect = { languageValue ->
+                        onEvent.invoke(CreateTaskScreenEvent.SaveLanguageData(languageValue))
+                    }
                 )
             }
-        )
 
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                Text(
+                    modifier = Modifier.align(Alignment.CenterStart),
+                    text = "Сложность",
+                    style = TextStyle(color = MainTextColor, fontSize = 20.sp)
+                )
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp)
-        ) {
+                DropdownList(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    value = state.complexity,
+                    items = complexityValueList,
+                    hint = "1 - 10",
+                    onItemSelect = { newComplexityValue ->
+                        onEvent.invoke(CreateTaskScreenEvent.SaveComplexityData(newComplexityValue))
+                    }
+                )
+            }
+
             Text(
-                modifier = Modifier.weight(1f),
-                text = "Вариант правильного ответа",
+                modifier = Modifier.padding(start = 16.dp, top = 8.dp),
+                text = "Вопрос задания",
                 style = TextStyle(color = MainTextColor, fontSize = 20.sp)
             )
 
-            DropdownList(
-                items = state.answerOptions,
-                value = state.answerOptionsCurrentValue,
-                hint = "",
-                onItemSelect = { newAnswerOptionValue ->
-                    onEvent.invoke(
-                        CreateTaskScreenEvent.SaveAnswerOptionsCurrentValueData(
-                            newAnswerOptionValue
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .height(140.dp)
+                    .border(
+                        width = 1.dp,
+                        color = AccentColor,
+                        shape = RoundedCornerShape(6.dp)
+                    ),
+                value = state.taskQuestion,
+                textStyle = TextStyle(color = MainTextColor, fontSize = 16.sp),
+                onValueChange = { newTaskQuestionValue ->
+                    onEvent.invoke(CreateTaskScreenEvent.SaveTaskQuestionData(newTaskQuestionValue))
+                }
+            )
+
+            Text(
+                modifier = Modifier.padding(start = 16.dp, top = 8.dp),
+                text = "Окно ввода задания",
+                style = TextStyle(color = MainTextColor, fontSize = 20.sp)
+            )
+
+            OutlinedTextField(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+                    .height(320.dp)
+                    .border(
+                        width = 1.dp,
+                        color = AccentColor,
+                        shape = RoundedCornerShape(6.dp)
+                    ),
+                value = state.taskCode,
+                textStyle = TextStyle(color = MainTextColor, fontSize = 16.sp),
+                onValueChange = { newTaskCodeValue ->
+                    onEvent.invoke(CreateTaskScreenEvent.SaveTaskCodeData(newTaskCodeValue))
+                }
+            )
+
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp)
+            ) {
+                Text(
+                    modifier = Modifier.align(Alignment.CenterStart),
+                    text = "Количество ответов",
+                    style = TextStyle(color = MainTextColor, fontSize = 20.sp)
+                )
+
+                DropdownList(
+                    modifier = Modifier.align(Alignment.CenterEnd),
+                    items = numberOfAnswersList,
+                    value = state.numberOfAnswers.toString(),
+                    hint = "",
+                    onItemSelect = { newNumberOfAnswers ->
+                        onEvent.invoke(
+                            CreateTaskScreenEvent.SaveNumberOfAnswersData(newNumberOfAnswers)
                         )
+                    }
+                )
+            }
+
+
+            Text(
+                modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+                text = "Варианты ответов",
+                style = TextStyle(color = MainTextColor, fontSize = 20.sp)
+            )
+
+            RowOfAnswers(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp),
+                answers = state.answersList,
+                onValueChange = { index, value ->
+                    val currentAnswersList = state.answersList.toMutableList()
+                    currentAnswersList[index] = value
+
+                    onEvent.invoke(
+                        CreateTaskScreenEvent.SaveNumberOfAnswersList(currentAnswersList.toList())
                     )
                 }
             )
-        }
 
-        SimpleButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(
-                    start = 16.dp,
-                    end = 16.dp,
-                    top = 32.dp,
-                    bottom = 8.dp
-                ),
-            text = "Создать задание",
-            backgroundColor = RightAnswerColor,
-            textColor = MainTextColor,
-            onClick = {
 
-                val newAlarmTask = AlarmTask(
-                    id = generateUniqueId(),
-                    quest = state.taskQuestion,
-                    code = state.taskCode,
-                    choiceOptions = state.answersList,
-                    rightAnswer = if (state.answerOptionsCurrentValue.isEmpty()) UNDEFINED_VALUE else
-                        state.answerOptionsCurrentValue.toInt(),
-                    language = state.language,
-                    complexity = if (state.complexity.isEmpty()) UNDEFINED_VALUE else
-                        state.complexity.toInt()
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 16.dp)
+            ) {
+                Text(
+                    modifier = Modifier.weight(1f),
+                    text = "Вариант правильного ответа",
+                    style = TextStyle(color = MainTextColor, fontSize = 20.sp)
                 )
 
-                onEvent.invoke(CreateTaskScreenEvent.SaveAlarmTaskToDatabase(newAlarmTask))
+                DropdownList(
+                    items = state.answerOptions,
+                    value = state.answerOptionsCurrentValue,
+                    hint = "",
+                    onItemSelect = { newAnswerOptionValue ->
+                        onEvent.invoke(
+                            CreateTaskScreenEvent.SaveAnswerOptionsCurrentValueData(
+                                newAnswerOptionValue
+                            )
+                        )
+                    }
+                )
             }
-        )
 
-        SimpleButton(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
-            text = "Очистить все поля",
-            backgroundColor = AccentColor,
-            textColor = MainTextColor,
-            onClick = {
-                onEvent.invoke(CreateTaskScreenEvent.ResetAllFieldsToTheirDefaultValues)
-            }
-        )
+            SimpleButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        start = 16.dp,
+                        end = 16.dp,
+                        top = 32.dp,
+                        bottom = 8.dp
+                    ),
+                text = "Создать задание",
+                backgroundColor = RightAnswerColor,
+                textColor = MainTextColor,
+                onClick = {
 
-        Spacer(
-            modifier = Modifier.padding(bottom = 88.dp)
-        )
+                    val newAlarmTask = AlarmTask(
+                        id = generateUniqueId(),
+                        quest = state.taskQuestion,
+                        code = state.taskCode,
+                        choiceOptions = state.answersList,
+                        rightAnswer = if (state.answerOptionsCurrentValue.isEmpty()) UNDEFINED_VALUE else
+                            state.answerOptionsCurrentValue.toInt(),
+                        language = state.language,
+                        complexity = if (state.complexity.isEmpty()) UNDEFINED_VALUE else
+                            state.complexity.toInt()
+                    )
+
+                    onEvent.invoke(CreateTaskScreenEvent.SaveAlarmTaskToDatabase(newAlarmTask))
+                }
+            )
+
+            SimpleButton(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, top = 8.dp, bottom = 16.dp),
+                text = "Очистить все поля",
+                backgroundColor = AccentColor,
+                textColor = MainTextColor,
+                onClick = {
+                    onEvent.invoke(CreateTaskScreenEvent.ResetAllFieldsToTheirDefaultValues)
+                }
+            )
+
+            Spacer(
+                modifier = Modifier.padding(bottom = 88.dp)
+            )
+        }
+
     }
+
 }
 
 @Composable

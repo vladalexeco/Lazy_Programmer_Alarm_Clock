@@ -31,7 +31,7 @@ fun SimpleButton(
     Box(
         modifier = modifier
             .size(width = width, height = height)
-            .background(color = backgroundColor, shape = RoundedCornerShape(6.dp))
+            .background(color = backgroundColor, shape = RoundedCornerShape(8.dp))
             .clickable { onClick.invoke() },
         contentAlignment = Alignment.Center
     ) {
