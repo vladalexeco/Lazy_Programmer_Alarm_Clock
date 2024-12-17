@@ -5,17 +5,24 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.components.ViewModelComponent
 import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmClockMaker
+import ru.vladalexeco.lazyprogrammer.data.api.UserStatisticsStorageRepositoryImpl
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmTaskStorageRepository
+import ru.vladalexeco.lazyprogrammer.domain.api.LanguageResultStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.api.SharedPreferencesRepository
+import ru.vladalexeco.lazyprogrammer.domain.api.UserStatisticsStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.usecase.CancelAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.CreateWeeklyAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.DeleteAlarmFromDatabaseUseSase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetAllAlarmsFromDatabaseUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.GetAllLanguageResultsByUserStatisticsIdUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetRandomAlarmTasksUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.GetUserStatisticsByIdUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetValueFromSharedPreferencesUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmTaskToDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveAlarmToDatabaseUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveLanguageResultToDatabaseUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveUserStatisticsToDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.SaveValueToSharedPreferencesUseCase
 
 @Module
@@ -83,5 +90,33 @@ class DomainModule {
         sharedPreferencesRepository: SharedPreferencesRepository
     ): GetValueFromSharedPreferencesUseCase {
         return GetValueFromSharedPreferencesUseCase(sharedPreferencesRepository)
+    }
+
+    @Provides
+    fun provideSaveUserStatisticsToDatabaseUseCase(
+        userStatisticsStorageRepository: UserStatisticsStorageRepository
+    ): SaveUserStatisticsToDatabaseUseCase {
+        return SaveUserStatisticsToDatabaseUseCase(userStatisticsStorageRepository)
+    }
+
+    @Provides
+    fun provideGetUserStatisticsByIdUseCase(
+        userStatisticsStorageRepository: UserStatisticsStorageRepository
+    ): GetUserStatisticsByIdUseCase {
+        return GetUserStatisticsByIdUseCase(userStatisticsStorageRepository)
+    }
+
+    @Provides
+    fun provideSaveLanguageResultToDatabaseUseCase(
+        languageResultStorageRepository: LanguageResultStorageRepository
+    ): SaveLanguageResultToDatabaseUseCase {
+        return SaveLanguageResultToDatabaseUseCase(languageResultStorageRepository)
+    }
+
+    @Provides
+    fun provideGetAllLanguageResultsByUserStatisticsIdUseCase(
+        languageResultStorageRepository: LanguageResultStorageRepository
+    ): GetAllLanguageResultsByUserStatisticsIdUseCase {
+        return GetAllLanguageResultsByUserStatisticsIdUseCase(languageResultStorageRepository)
     }
 }

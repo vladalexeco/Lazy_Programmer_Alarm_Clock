@@ -10,11 +10,15 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
 import ru.vladalexeco.lazyprogrammer.data.api.AlarmStorageRepositoryImpl
 import ru.vladalexeco.lazyprogrammer.data.api.AlarmTaskStorageRepositoryImpl
+import ru.vladalexeco.lazyprogrammer.data.api.LanguageResultStorageRepositoryImpl
 import ru.vladalexeco.lazyprogrammer.data.api.SharedPreferencesRepositoryImpl
+import ru.vladalexeco.lazyprogrammer.data.api.UserStatisticsStorageRepositoryImpl
 import ru.vladalexeco.lazyprogrammer.data.storage.AppDatabase
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.api.AlarmTaskStorageRepository
+import ru.vladalexeco.lazyprogrammer.domain.api.LanguageResultStorageRepository
 import ru.vladalexeco.lazyprogrammer.domain.api.SharedPreferencesRepository
+import ru.vladalexeco.lazyprogrammer.domain.api.UserStatisticsStorageRepository
 import javax.inject.Singleton
 
 @Module
@@ -55,5 +59,17 @@ class DataModule {
     fun provideSharedPreferencesRepository(sharedPreferences: SharedPreferences)
     : SharedPreferencesRepository {
         return SharedPreferencesRepositoryImpl(sharedPreferences = sharedPreferences)
+    }
+
+    @Provides
+    @Singleton
+    fun provideUserStatisticsStorageRepository(appDatabase: AppDatabase): UserStatisticsStorageRepository {
+        return UserStatisticsStorageRepositoryImpl(appDatabase = appDatabase)
+    }
+
+    @Provides
+    @Singleton
+    fun provideLanguageResultStorageRepository(appDatabase: AppDatabase): LanguageResultStorageRepository {
+        return LanguageResultStorageRepositoryImpl(appDatabase = appDatabase)
     }
 }
