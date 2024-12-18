@@ -3,7 +3,6 @@ package ru.vladalexeco.lazyprogrammer.presentation.ui.screens
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -52,7 +51,9 @@ import ru.vladalexeco.lazyprogrammer.presentation.viewmodel.CreateTaskScreenView
 
 @OptIn(FlowPreview::class)
 @Composable
-fun CreateTaskScreen() {
+fun CreateTaskScreen(
+    onSaveButtonClick: () -> Unit
+) {
 
     val viewModel: CreateTaskScreenViewModel = hiltViewModel()
     val state by viewModel.uiState.collectAsState()
@@ -64,6 +65,10 @@ fun CreateTaskScreen() {
             when (sideEffect) {
                 is CreateTaskScreenSideEffect.ShowMessage -> {
                     Toast.makeText(context, sideEffect.message, Toast.LENGTH_SHORT).show()
+                }
+
+                CreateTaskScreenSideEffect.GoToAnotherScreen -> {
+                    onSaveButtonClick.invoke()
                 }
             }
         }

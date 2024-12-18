@@ -261,10 +261,10 @@ class CreateTaskScreenViewModel @Inject constructor(
                 saveAlarmTaskToDatabaseUseCase.invoke(alarmTask = alarmTask)
 
                 _sideEffect.emit(
-                    CreateTaskScreenSideEffect.ShowMessage(
-                        message = "Задание сохранено"
-                    )
+                    CreateTaskScreenSideEffect.GoToAnotherScreen
                 )
+
+                resetAllFieldsToTheirDefaultValues()
             }
         }
     }
