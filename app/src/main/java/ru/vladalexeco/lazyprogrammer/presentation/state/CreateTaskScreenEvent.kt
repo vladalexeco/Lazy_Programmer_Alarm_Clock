@@ -14,4 +14,5 @@ sealed interface CreateTaskScreenEvent {
     data object ResetAllFieldsToTheirDefaultValues : CreateTaskScreenEvent
     data class SaveQuestionValueInSharedPreferences(val questionValue: String) : CreateTaskScreenEvent
     data class SaveCodeValueInSharedPreferences(val codeValue: String) : CreateTaskScreenEvent
+    data class MakeVisibleDialogBox(val isVisible: Boolean) : CreateTaskScreenEvent
 }

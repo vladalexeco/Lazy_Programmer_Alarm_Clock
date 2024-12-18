@@ -12,6 +12,7 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.AlarmTaskScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.CreateTaskScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.SettingsScreen
 import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.StatisticsScreen
+import ru.vladalexeco.lazyprogrammer.presentation.ui.screens.TaskSetScreen
 
 @RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
@@ -29,7 +30,15 @@ fun AppNavHost(
         }
 
         composable(route = Task.route) {
-            CreateTaskScreen()
+            CreateTaskScreen(
+                onSaveButtonClick = {
+                    navHostController.navigate(route = Plug.route) {
+                        popUpTo(route = Task.route) {
+                            inclusive = true
+                        }
+                    }
+                }
+            )
         }
 
         composable(route = Results.route) {
@@ -44,6 +53,18 @@ fun AppNavHost(
             AlarmTaskScreen(
                 onCompleteClick = {
                     navHostController.navigate(route = Alarms.route)
+                }
+            )
+        }
+
+        composable(route = Plug.route) {
+            TaskSetScreen(
+                onButtonClick = {
+                    navHostController.navigate(route = Task.route) {
+                        popUpTo(route = Plug.route) {
+                            inclusive = true
+                        }
+                    }
                 }
             )
         }

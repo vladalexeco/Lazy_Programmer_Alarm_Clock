@@ -23,3 +23,7 @@ object Settings: LazyProgrammerDestination {
 object Quest: LazyProgrammerDestination {
     override val route = "Quest"
 }
+
+object Plug: LazyProgrammerDestination {
+    override val route = "Plug"
+}
