@@ -32,7 +32,8 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.WrongAnswerColor
 @Composable
 fun ButtonChoiceRow(
     modifier: Modifier = Modifier,
-    options: Map<String, Boolean>,
+    options: List<String>,
+    answerIsSelected: Boolean,
     rightAnswerIndex: Int,
     onButtonClick: (Boolean) -> Unit
 ) {
@@ -41,7 +42,7 @@ fun ButtonChoiceRow(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        itemsIndexed(options.keys.toList()) { index, key ->
+        itemsIndexed(options) { index, key ->
             ButtonChoice(
                 defaultColor = LightTextColor,
                 rightAnswerColor = RightAnswerColor,
@@ -50,7 +51,7 @@ fun ButtonChoiceRow(
                 height = 32.dp,
                 text = key,
                 isRightAnswer = index == rightAnswerIndex,
-                answerIsSelected = options[key],
+                answerIsSelected = answerIsSelected,
                 onClick = {
                     onButtonClick.invoke(index == rightAnswerIndex)
                 }
@@ -63,15 +64,14 @@ fun ButtonChoiceRow(
 @Preview(showBackground = true)
 fun ButtonChoiceRowPreview() {
 
-    val options = remember { mutableStateMapOf("1" to false, "2" to false, "3" to false) }
+    var answerIsSelected by remember { mutableStateOf(false) }
 
     ButtonChoiceRow(
-        options = options,
+        options = listOf("1", "2", "3"),
         rightAnswerIndex = 2,
+        answerIsSelected = answerIsSelected,
         onButtonClick = { isCorrectAnswer ->
-            options.keys.forEach { key ->
-                options[key] = true
-            }
+            answerIsSelected = true
         }
     )
 }
@@ -83,7 +83,7 @@ fun ButtonChoice(
     defaultColor: Color,
     wrongAnswerColor: Color,
     rightAnswerColor: Color,
-    answerIsSelected: Boolean?,
+    answerIsSelected: Boolean,
     width: Dp,
     height: Dp,
     text: String,
@@ -106,7 +106,7 @@ fun ButtonChoice(
                 shape = RoundedCornerShape(6.dp)
             )
             .clickable {
-                if (!answerIsSelected!!) {
+                if (!answerIsSelected) {
                     currentButtonColor = if (isRightAnswer) rightAnswerColor else wrongAnswerColor
                     currentTextColor = MainTextColor
                     onClick.invoke()

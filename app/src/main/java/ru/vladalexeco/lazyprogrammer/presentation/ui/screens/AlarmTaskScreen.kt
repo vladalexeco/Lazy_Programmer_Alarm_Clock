@@ -18,6 +18,10 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -62,7 +66,7 @@ fun AlarmTaskScreen(
 
     val taskNumber = 1 // TODO значение приходит из viewmodel
     val totalTaskNumber = 3
-    val answerIsSelected = false
+    var answerIsSelected by remember { mutableStateOf(false) }
 
     val annotatedCode = buildColoredString(
         language = "kotlin",
@@ -153,11 +157,17 @@ fun AlarmTaskScreen(
 
         ButtonChoiceRow(
             modifier = Modifier.padding(horizontal = 16.dp),
-            options = mapOf("1" to false, "2" to false, "3" to false),
+            options = listOf("1", "2", "3"),
             rightAnswerIndex = 2,
+            answerIsSelected = answerIsSelected,
             onButtonClick = { isCorrectAnswer ->
                 // TODO Действия в случае правильного или неправильного ответа
 
+                if (!answerIsSelected) {
+                    // do some actions
+                }
+
+                answerIsSelected = true
             }
         )
 
