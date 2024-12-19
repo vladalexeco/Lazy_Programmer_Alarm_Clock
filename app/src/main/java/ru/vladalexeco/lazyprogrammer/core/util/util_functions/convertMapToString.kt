@@ -24,3 +24,14 @@ fun getDefaultMap(defaultKeyValues: List<String>): Map<String, Boolean> {
     defaultKeyValues.forEach { item -> defaultMap[item] = false }
     return defaultMap
 }
+
+fun getListOfMarkedValues(map: Map<String, Boolean>): List<String> {
+    val resultList = mutableListOf<String>()
+    map.keys.forEach { key ->
+        if (map[key] == true) {
+            resultList.add(key)
+        }
+    }
+
+    return resultList
+}

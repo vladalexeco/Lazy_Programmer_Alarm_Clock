@@ -5,8 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -59,6 +61,8 @@ fun AlarmTaskScreen(
     )
 
     val taskNumber = 1 // TODO значение приходит из viewmodel
+    val totalTaskNumber = 3
+    val answerIsSelected = false
 
     val annotatedCode = buildColoredString(
         language = "kotlin",
@@ -76,7 +80,7 @@ fun AlarmTaskScreen(
                 .padding(top = 32.dp, start = 16.dp, end = 12.dp)
         ) {
             Text(
-                text = "Задание $taskNumber",
+                text = "Задание $taskNumber из $totalTaskNumber" ,
                 style = TextStyle(color = MainTextColor, fontSize = 24.sp)
             )
             Image(
@@ -87,14 +91,21 @@ fun AlarmTaskScreen(
             )
         }
 
-        Text(
-            modifier = Modifier.padding(
-                start = 16.dp,
-                top = 16.dp
-            ),
-            text = "Сложность: ${alarmTask.complexity}",
-            style = TextStyle(color = AccentColor, fontSize = 20.sp)
-        )
+        Row(
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "Язык: ${alarmTask.language};",
+                style = TextStyle(color = AccentColor, fontSize = 20.sp)
+            )
+
+            Text(
+                text = "Сложность: ${alarmTask.complexity}",
+                style = TextStyle(color = AccentColor, fontSize = 20.sp)
+            )
+        }
+
 
         Text(
             modifier = Modifier
@@ -142,10 +153,11 @@ fun AlarmTaskScreen(
 
         ButtonChoiceRow(
             modifier = Modifier.padding(horizontal = 16.dp),
-            options = listOf("1", "2", "3", "4"),
+            options = mapOf("1" to false, "2" to false, "3" to false),
             rightAnswerIndex = 2,
             onButtonClick = { isCorrectAnswer ->
                 // TODO Действия в случае правильного или неправильного ответа
+
             }
         )
 

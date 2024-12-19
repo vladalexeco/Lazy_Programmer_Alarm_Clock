@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -31,7 +32,7 @@ import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.WrongAnswerColor
 @Composable
 fun ButtonChoiceRow(
     modifier: Modifier = Modifier,
-    options: List<String>,
+    options: Map<String, Boolean>,
     rightAnswerIndex: Int,
     onButtonClick: (Boolean) -> Unit
 ) {
@@ -40,21 +41,18 @@ fun ButtonChoiceRow(
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        itemsIndexed(options) { index, option ->
+        itemsIndexed(options.keys.toList()) { index, key ->
             ButtonChoice(
                 defaultColor = LightTextColor,
                 rightAnswerColor = RightAnswerColor,
                 wrongAnswerColor = WrongAnswerColor,
                 width = 64.dp,
                 height = 32.dp,
-                text = option,
+                text = key,
                 isRightAnswer = index == rightAnswerIndex,
+                answerIsSelected = options[key],
                 onClick = {
-                    if (index == rightAnswerIndex) {
-                        onButtonClick.invoke(true)
-                    } else {
-                        onButtonClick.invoke(false)
-                    }
+                    onButtonClick.invoke(index == rightAnswerIndex)
                 }
             )
         }
@@ -64,10 +62,17 @@ fun ButtonChoiceRow(
 @Composable
 @Preview(showBackground = true)
 fun ButtonChoiceRowPreview() {
+
+    val options = remember { mutableStateMapOf("1" to false, "2" to false, "3" to false) }
+
     ButtonChoiceRow(
-        options = listOf("1", "2", "3", "4"),
+        options = options,
         rightAnswerIndex = 2,
-        onButtonClick = {}
+        onButtonClick = { isCorrectAnswer ->
+            options.keys.forEach { key ->
+                options[key] = true
+            }
+        }
     )
 }
 
@@ -78,6 +83,7 @@ fun ButtonChoice(
     defaultColor: Color,
     wrongAnswerColor: Color,
     rightAnswerColor: Color,
+    answerIsSelected: Boolean?,
     width: Dp,
     height: Dp,
     text: String,
@@ -100,9 +106,11 @@ fun ButtonChoice(
                 shape = RoundedCornerShape(6.dp)
             )
             .clickable {
-                currentButtonColor = if (isRightAnswer) rightAnswerColor else wrongAnswerColor
-                currentTextColor = MainTextColor
-                onClick.invoke()
+                if (!answerIsSelected!!) {
+                    currentButtonColor = if (isRightAnswer) rightAnswerColor else wrongAnswerColor
+                    currentTextColor = MainTextColor
+                    onClick.invoke()
+                }
             },
         contentAlignment = Alignment.Center
     ) {
@@ -120,6 +128,7 @@ fun ButtonChoicePreview() {
         width = 64.dp,
         height = 32.dp,
         text = "1",
+        answerIsSelected = false,
         onClick = {},
         isRightAnswer = false
     )
