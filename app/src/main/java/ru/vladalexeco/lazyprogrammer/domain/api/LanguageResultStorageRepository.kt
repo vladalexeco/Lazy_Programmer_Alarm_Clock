@@ -7,4 +7,6 @@ interface LanguageResultStorageRepository {
 
     suspend fun saveLanguageResultToDatabase(languageResult: LanguageResult)
     suspend fun getAllLanguageResultsByUserStatisticsId(userStatisticsId: Int): Flow<List<LanguageResult>>
+    suspend fun getLanguageResultListByLanguageAndUserId(userStatisticsId: Int, languageList: List<String>)
+    : Flow<List<LanguageResult>>
 }

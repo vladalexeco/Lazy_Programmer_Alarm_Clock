@@ -11,6 +11,6 @@ data class AlarmTaskScreenState(
     val quest: String = EMPTY_STRING,
     val code: AnnotatedString = AnnotatedString(""),
     val choiceOptions: List<String> = listOf("", "", "", ""),
-    val rightAnswer: Int = 0,
+    val rightAnswer: Int = 1,
     val answerIsSelected: Boolean = false
 )

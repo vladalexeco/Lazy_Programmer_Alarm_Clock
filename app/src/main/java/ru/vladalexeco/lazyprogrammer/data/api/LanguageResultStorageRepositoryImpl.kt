@@ -18,15 +18,33 @@ class LanguageResultStorageRepositoryImpl(
         )
     }
 
-    override suspend fun getAllLanguageResultsByUserStatisticsId(userStatisticsId: Int):
-            Flow<List<LanguageResult>> = flow {
+    override suspend fun getAllLanguageResultsByUserStatisticsId(
+        userStatisticsId: Int
+    ): Flow<List<LanguageResult>> = flow {
 
-                val languageResultEntityList = appDatabase
+        val languageResultEntityList = appDatabase
             .getLanguageResultDao()
             .getAllLanguageResultByUserStatisticsId(userStatisticsId)
 
-        emit(languageResultEntityList.map {
-            languageResultEntity -> languageResultEntity.toLanguageResult()
+        emit(languageResultEntityList.map { languageResultEntity ->
+            languageResultEntity.toLanguageResult()
+        })
+    }
+
+    override suspend fun getLanguageResultListByLanguageAndUserId(
+        userStatisticsId: Int,
+        languageList: List<String>
+    ): Flow<List<LanguageResult>> = flow {
+
+        val languageResultEntityList = appDatabase
+            .getLanguageResultDao()
+            .getLanguageResultListByLanguageAndUserId(
+                userStatisticsId = userStatisticsId,
+                languageList = languageList
+            )
+
+        emit(languageResultEntityList.map { languageResultEntity ->
+            languageResultEntity.toLanguageResult()
         })
     }
 }
