@@ -168,8 +168,9 @@ fun AlarmTaskScreen(
             options = state.choiceOptions,
             rightAnswerIndex = state.rightAnswer - 1,
             answerIsSelected = state.answerIsSelected,
+            isReset = state.isButtonReset,
             onButtonClick = { isCorrectAnswer ->
-                if (state.answerIsSelected) {
+                if (!state.answerIsSelected) {
                     onEvent.invoke(AlarmTaskScreenEvent.ProcessUserTaskResponse(isCorrectAnswer))
                 }
             }

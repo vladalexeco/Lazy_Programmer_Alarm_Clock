@@ -4,13 +4,17 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
@@ -34,6 +38,7 @@ fun ButtonChoiceRow(
     modifier: Modifier = Modifier,
     options: List<String>,
     answerIsSelected: Boolean,
+    isReset: Boolean,
     rightAnswerIndex: Int,
     onButtonClick: (Boolean) -> Unit
 ) {
@@ -49,6 +54,7 @@ fun ButtonChoiceRow(
                 wrongAnswerColor = WrongAnswerColor,
                 width = 64.dp,
                 height = 32.dp,
+                isReset = isReset,
                 text = key,
                 isRightAnswer = index == rightAnswerIndex,
                 answerIsSelected = answerIsSelected,
@@ -65,15 +71,30 @@ fun ButtonChoiceRow(
 fun ButtonChoiceRowPreview() {
 
     var answerIsSelected by remember { mutableStateOf(false) }
+    var isReset by remember { mutableStateOf(false) }
 
-    ButtonChoiceRow(
-        options = listOf("1", "2", "3"),
-        rightAnswerIndex = 2,
-        answerIsSelected = answerIsSelected,
-        onButtonClick = { isCorrectAnswer ->
-            answerIsSelected = true
+    Column {
+        ButtonChoiceRow(
+            options = listOf("1", "2", "3"),
+            rightAnswerIndex = 2,
+            answerIsSelected = answerIsSelected,
+            isReset = isReset,
+            onButtonClick = { isCorrectAnswer ->
+                answerIsSelected = true
+                isReset = false
+            }
+        )
+
+        Button(
+            modifier = Modifier.padding(top = 16.dp),
+            onClick = {
+                answerIsSelected = false
+                isReset = true
+            }
+        ) {
+            Text(text = "Reset")
         }
-    )
+    }
 }
 
 @Composable
@@ -84,6 +105,7 @@ fun ButtonChoice(
     wrongAnswerColor: Color,
     rightAnswerColor: Color,
     answerIsSelected: Boolean,
+    isReset: Boolean,
     width: Dp,
     height: Dp,
     text: String,
@@ -96,6 +118,13 @@ fun ButtonChoice(
 
     var currentTextColor by remember {
         mutableStateOf(DialogBoxColor)
+    }
+
+    LaunchedEffect(isReset) {
+        if (isReset) {
+            currentButtonColor = defaultColor
+            currentTextColor = DialogBoxColor
+        }
     }
 
     Box(
@@ -129,6 +158,7 @@ fun ButtonChoicePreview() {
         height = 32.dp,
         text = "1",
         answerIsSelected = false,
+        isReset = false,
         onClick = {},
         isRightAnswer = false
     )

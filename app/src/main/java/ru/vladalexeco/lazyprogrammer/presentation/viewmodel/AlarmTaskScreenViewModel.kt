@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmSoundPlayer
@@ -59,7 +60,6 @@ class AlarmTaskScreenViewModel @Inject constructor(
     val sideEffect: SharedFlow<AlarmTaskScreenSideEffect> = _sideEffect.asSharedFlow()
 
     init {
-
         // Get User Settings From Shared Preferences
         val languageMapStringJson = getValueFromSharedPreferencesUseCase(LANGUAGE_MAP_SH_KEY)
 
@@ -129,16 +129,18 @@ class AlarmTaskScreenViewModel @Inject constructor(
 
     private fun processUserTaskResponse(isCorrectedAnswer: Boolean) {
 
-        processTaskState.currentNumberOfTasks.plus(1)
+        processTaskState.currentNumberOfTasks += 1
 
         if (isCorrectedAnswer) {
-            processTaskState.countLanguageMap[_uiState.value.language]?.plus(1)
+            processTaskState.countLanguageMap
+                .compute(_uiState.value.language) { _, oldValue -> (oldValue ?: 0) + 1 }
         } else {
-            processTaskState.currentNumberOfMistakes.plus(1)
+            processTaskState.currentNumberOfMistakes += 1
         }
 
         _uiState.update { alarmTaskScreenState ->
             alarmTaskScreenState.copy(
+                isButtonReset = false,
                 answerIsSelected = true
             )
         }
@@ -162,7 +164,8 @@ class AlarmTaskScreenViewModel @Inject constructor(
                     ),
                     choiceOptions = currentAlarmState.choiceOptions,
                     rightAnswer = currentAlarmState.rightAnswer,
-                    answerIsSelected = false
+                    answerIsSelected = false,
+                    isButtonReset = true
                 )
             }
         } else {
@@ -205,21 +208,20 @@ class AlarmTaskScreenViewModel @Inject constructor(
 
         if (languageRequestList.isNotEmpty()) {
 
-            getLanguageResultListByLanguageAndUserIdUseCase(
+            val languageResultList = getLanguageResultListByLanguageAndUserIdUseCase(
                 userStatisticsId = USER_ID,
                 languageList = languageRequestList
-            ).collect { languageResultList ->
+            ).first()
 
-                languageResultList.forEach { languageResult ->
+            languageResultList.forEach { languageResult ->
 
-                    val newCount = languageMap[languageResult.name] ?: 0
+                val newCount = languageMap[languageResult.name] ?: 0
 
-                    val newLanguageResult = languageResult.copy(
-                        value = languageResult.value + newCount
-                    )
+                val newLanguageResult = languageResult.copy(
+                    value = languageResult.value + newCount
+                )
 
-                    saveLanguageResultToDatabaseUseCase(newLanguageResult)
-                }
+                saveLanguageResultToDatabaseUseCase(newLanguageResult)
             }
         }
     }
