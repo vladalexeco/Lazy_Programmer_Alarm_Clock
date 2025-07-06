@@ -38,7 +38,14 @@ fun getStringStatusWithStatusValue(statusValue: Int): String {
         5 to "Профессионал"
     )
 
-    return statusMap[statusValue] ?: ""
+    return when (statusValue) {
+        in 1..10 -> statusMap[1] ?: ""
+        in 11..20 -> statusMap[2] ?: ""
+        in 21..30 -> statusMap[3] ?: ""
+        in 31..40 -> statusMap[4] ?: ""
+        in 41..Int.MAX_VALUE -> statusMap[5] ?: ""
+        else -> ""
+    }
 }
 
 fun getEmojiStatusWithStatusValue(status: Int): ImageVO {
@@ -50,10 +57,16 @@ fun getEmojiStatusWithStatusValue(status: Int): ImageVO {
         5 to R.drawable.professional
     )
 
-    val emojiResource = emojiMap[status]
+    val default = R.drawable.newcomer
 
-    return if (emojiResource != null)
-        ImageVO.Resource(emojiResource)
-    else
-        ImageVO.Resource(R.drawable.newcomer)
+    val emojiResource: Int = when (status) {
+        in 1..10 -> emojiMap[1] ?: default
+        in 11..20 -> emojiMap[2] ?: default
+        in 21..30 -> emojiMap[3] ?: default
+        in 31..40 -> emojiMap[4] ?: default
+        in 41..Int.MAX_VALUE -> emojiMap[5] ?: default
+        else -> default
+    }
+
+    return ImageVO.Resource(emojiResource)
 }

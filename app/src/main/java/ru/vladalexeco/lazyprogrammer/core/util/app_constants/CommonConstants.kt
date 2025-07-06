@@ -2,6 +2,8 @@ package ru.vladalexeco.lazyprogrammer.core.util.app_constants
 
 val supportedProgrammingLanguages = listOf("kotlin", "java", "python")
 
+
+const val LOGGER = "logger"
 const val USER_ID = 1
 const val DEFAULT_ID = 101
 const val DEFAULT_VALUE_OF_USER_STATISTICS_PARAMETERS = 0

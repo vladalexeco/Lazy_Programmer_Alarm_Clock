@@ -16,6 +16,7 @@ import ru.vladalexeco.lazyprogrammer.domain.usecase.CreateWeeklyAlarmUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.DeleteAlarmFromDatabaseUseSase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetAllAlarmsFromDatabaseUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetAllLanguageResultsByUserStatisticsIdUseCase
+import ru.vladalexeco.lazyprogrammer.domain.usecase.GetLanguageResultListByLanguageAndUserIdUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetRandomAlarmTasksUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetUserStatisticsByIdUseCase
 import ru.vladalexeco.lazyprogrammer.domain.usecase.GetValueFromSharedPreferencesUseCase
@@ -118,5 +119,12 @@ class DomainModule {
         languageResultStorageRepository: LanguageResultStorageRepository
     ): GetAllLanguageResultsByUserStatisticsIdUseCase {
         return GetAllLanguageResultsByUserStatisticsIdUseCase(languageResultStorageRepository)
+    }
+
+    @Provides
+    fun provideGetLanguageResultListByLanguageAndUserIdUseCase(
+        languageResultStorageRepository: LanguageResultStorageRepository
+    ): GetLanguageResultListByLanguageAndUserIdUseCase {
+        return GetLanguageResultListByLanguageAndUserIdUseCase(languageResultStorageRepository)
     }
 }

@@ -5,8 +5,10 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -16,6 +18,12 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
@@ -25,46 +33,54 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.hilt.navigation.compose.hiltViewModel
 import ru.vladalexeco.lazyprogrammer.R
-import ru.vladalexeco.lazyprogrammer.core.alarm.AlarmSoundPlayer
 import ru.vladalexeco.lazyprogrammer.core.util.util_functions.buildColoredString
 import ru.vladalexeco.lazyprogrammer.domain.model.AlarmTask
+import ru.vladalexeco.lazyprogrammer.presentation.state.AlarmTaskScreenEvent
+import ru.vladalexeco.lazyprogrammer.presentation.state.AlarmTaskScreenSideEffect
+import ru.vladalexeco.lazyprogrammer.presentation.state.AlarmTaskScreenState
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.AccentColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.BackgroundColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.CardColor
+import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.LightTextColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.MainTextColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.RightAnswerColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.theme.WrongAnswerColor
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.ButtonChoiceRow
 import ru.vladalexeco.lazyprogrammer.presentation.ui.views.alarm_task_screen.SimpleButton
+import ru.vladalexeco.lazyprogrammer.presentation.viewmodel.AlarmTaskScreenViewModel
 
 @Composable
 fun AlarmTaskScreen(
     onCompleteClick: () -> Unit
 ) {
+    val viewModel: AlarmTaskScreenViewModel = hiltViewModel()
+    val state by viewModel.uiState.collectAsState()
 
-    // TODO это мок объект. В дальнейшем надо заменить его на объект, который будет приходить
-    // TODO из базы данных (удаленной или локальной) при помощи вьюмодели
-    val alarmTask = AlarmTask(
-        id = "0",
-        quest = "Дано начальное значение переменной m. Какое значение m выведет" +
-        " функция println()?",
-        code = "val str = \"String\"\nvar m = 0 \nvar count = 3 \n" +
-        "while (count > 0) {\n    m++ \n    count-- \n} \n" +
-        "println(m)",
-        choiceOptions = listOf("1", "2", "3" ,"4"),
-        rightAnswer = 2,
-        language = "kotlin",
-        complexity = 1
+    LaunchedEffect(Unit) {
+        viewModel.sideEffect.collect { sideEffect ->
+            when (sideEffect) {
+                AlarmTaskScreenSideEffect.GoToAnotherScreen -> {
+                    onCompleteClick.invoke()
+                }
+            }
+        }
+    }
+
+    AlarmTaskScreen(
+        state = state,
+        onEvent = { alarmTaskScreenEvent ->
+            viewModel.onEvent(alarmTaskScreenEvent)
+        }
     )
+}
 
-    val taskNumber = 1 // TODO значение приходит из viewmodel
-
-    val annotatedCode = buildColoredString(
-        language = "kotlin",
-        codeText = alarmTask.code
-    )
-
+@Composable
+fun AlarmTaskScreen(
+    state: AlarmTaskScreenState,
+    onEvent: (AlarmTaskScreenEvent) -> Unit
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -76,7 +92,7 @@ fun AlarmTaskScreen(
                 .padding(top = 32.dp, start = 16.dp, end = 12.dp)
         ) {
             Text(
-                text = "Задание $taskNumber",
+                text = "Задание ${state.taskNumber} из ${state.totalNumberOfTasks}" ,
                 style = TextStyle(color = MainTextColor, fontSize = 24.sp)
             )
             Image(
@@ -87,20 +103,27 @@ fun AlarmTaskScreen(
             )
         }
 
-        Text(
-            modifier = Modifier.padding(
-                start = 16.dp,
-                top = 16.dp
-            ),
-            text = "Сложность: ${alarmTask.complexity}",
-            style = TextStyle(color = AccentColor, fontSize = 20.sp)
-        )
+        Row(
+            modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            Text(
+                text = "Язык: ${state.language};",
+                style = TextStyle(color = AccentColor, fontSize = 20.sp)
+            )
+
+            Text(
+                text = "Сложность: ${state.complexity}",
+                style = TextStyle(color = AccentColor, fontSize = 20.sp)
+            )
+        }
+
 
         Text(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(vertical = 16.dp, horizontal = 16.dp),
-            text = alarmTask.quest,
+            text = state.quest,
             style = TextStyle(color = MainTextColor, fontSize = 20.sp)
         )
 
@@ -123,7 +146,7 @@ fun AlarmTaskScreen(
                         state = rememberScrollState()
                     )
                     .padding(vertical = 16.dp, horizontal = 16.dp),
-                text = annotatedCode,
+                text = state.code,
                 maxLines = 14,
                 style = TextStyle(
                     color = MainTextColor,
@@ -142,36 +165,45 @@ fun AlarmTaskScreen(
 
         ButtonChoiceRow(
             modifier = Modifier.padding(horizontal = 16.dp),
-            options = listOf("1", "2", "3", "4"),
-            rightAnswerIndex = 2,
+            options = state.choiceOptions,
+            rightAnswerIndex = state.rightAnswer - 1,
+            answerIsSelected = state.answerIsSelected,
+            isReset = state.isButtonReset,
             onButtonClick = { isCorrectAnswer ->
-                // TODO Действия в случае правильного или неправильного ответа
+                if (!state.answerIsSelected) {
+                    onEvent.invoke(AlarmTaskScreenEvent.ProcessUserTaskResponse(isCorrectAnswer))
+                }
             }
         )
 
         Spacer(modifier = Modifier.weight(1f))
 
         SimpleButton(
-            modifier = Modifier.fillMaxWidth().padding(start = 16.dp, end = 16.dp),
-            text = "Пропустить",
-            backgroundColor = RightAnswerColor,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 16.dp, end = 16.dp),
+            text = if (state.answerIsSelected) "Продолжить" else "Пропустить",
+            backgroundColor = if (state.answerIsSelected) RightAnswerColor else LightTextColor,
             textColor = MainTextColor,
-            onClick = {}
+            onClick = {
+                onEvent.invoke(AlarmTaskScreenEvent.RenderNewTaskOrCompleteSession)
+            }
         )
 
         SimpleButton(
-            modifier = Modifier.fillMaxWidth().padding(
-                start = 16.dp,
-                end = 16.dp,
-                top = 16.dp,
-                bottom = 16.dp
-            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    start = 16.dp,
+                    end = 16.dp,
+                    top = 16.dp,
+                    bottom = 16.dp
+                ),
             text = "Завершить",
             backgroundColor = WrongAnswerColor,
             textColor = MainTextColor,
             onClick = {
-                AlarmSoundPlayer.stop()
-                onCompleteClick.invoke()
+                onEvent.invoke(AlarmTaskScreenEvent.ProcessWithEmergencyCompletionWithTask)
             }
         )
     }
@@ -181,6 +213,7 @@ fun AlarmTaskScreen(
 @Preview(showBackground = true)
 fun AlarmTaskScreenPreview() {
     AlarmTaskScreen(
-        onCompleteClick = {}
+        state = AlarmTaskScreenState(),
+        onEvent = {}
     )
 }
